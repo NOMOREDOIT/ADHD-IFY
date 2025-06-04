@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+ <title>ADHD-ifier</title>
+ <link rel="icon" type="image/png" href="favicon.ico">
+ <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+ <style>
+ html {
+ scroll-behavior: smooth;
+ background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+ overscroll-behavior: none;
+ margin: 0;
+ padding: 0;
+ -webkit-overflow-scrolling: touch;
+ -webkit-tap-highlight-color: transparent;
+ }
+ body {
+ margin: 0;
+ padding: .5rem;
+ font-family: 'Poppins', sans-serif;
+ background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+ color: #fff;
+ text-align: center;
+ min-height: 100vh;
+ overflow-x: hidden;
+ box-sizing: border-box;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ }
+ * {
+ box-sizing: border-box;
+ }
+ #adhd-meme-generator {
+ --green: #1DB954;
+ --dark: #111;
+ --light: #fafafa;
+ font-family: "Poppins", sans-serif;
+ color: var(--light);
+ background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+ padding: 1rem .5rem;
+ max-width: 980px;
+ width: 100%;
+ margin: 0 auto;
+ display: flex;
+ flex-direction: column;
+ gap: .5rem;
+ }
+ #adhd-meme-generator h2 {
+ font-size: 1.8rem;
+ margin: 0 0 .2rem;
+ text-shadow: 0 0 4px rgba(255, 255, 255, .4);
+ }
+ #adhd-meme-generator h3 {
+ font-size: 1rem;
+ margin: .5rem 0 .3rem;
+ opacity: .9;
+ font-weight: 500;
+ }
+ #adhd-meme-generator p.tagline {
+ font-size: .9rem;
+ margin: 0 0 .5rem;
+ font-weight: 500;
+ opacity: .9;
+ }
+ .mg-preview {
+ width: 100%;
+ max-width: 600px;
+ margin: 0 auto;
+ position: relative;
+ }
+ .mg-preview canvas {
+ width: 100%;
+ height: auto;
+ border: 1px solid #444;
+ border-radius: 8px;
+ }
+ .mg-preview.no-image canvas {
+ border: 2px dashed #333;
+ cursor: pointer;
+ }
+ .mg-preview.no-image canvas:hover {
+ border-color: var(--green);
+ }
+ .mg-preview.no-image::after {
+ content: "Click or drag image here";
+ position: absolute;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ font-size: .85rem;
+ color: #888;
+ pointer-events: none;
+ }
+ .mg-controls {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+ gap: .75rem;
+ width: 100%;
+ }
+ .mg-controls fieldset {
+ background: rgba(255, 255, 255, .06);
+ border: 1px solid var(--green);
+ border-radius: 8px;
+ padding: .8rem .6rem;
+ backdrop-filter: blur(4px);
+ margin: 0;
+ }
+ .mg-controls legend {
+ font-size: .85rem;
+ font-weight: 600;
+ margin-bottom: .3rem;
+ }
+ .mg-controls input[type="file"] {
+ display: none;
+ }
+ .mg-slider {
+ display: flex;
+ align-items: center;
+ gap: .3rem;
+ margin: .3rem 0;
+ }
+ .mg-slider input {
+ flex: 1;
+ height: 1rem;
+ }
+ .mg-slider span {
+ font-size: .75rem;
+ width: 32px;
+ text-align: right;
+ min-width: 32px;
+ }
+ .mg-row {
+ display: flex;
+ align-items: center;
+ gap: .4rem;
+ margin: .4rem 0;
+ flex-wrap: nowrap;
+ }
+ .mg-row label {
+ display: flex;
+ align-items: center;
+ gap: .25rem;
+ font-size: .8rem;
+ cursor: pointer;
+ }
+ .mg-row select {
+ padding: .25rem .4rem;
+ border-radius: 4px;
+ border: 1px solid var(--green);
+ background: rgba(255, 255, 255, .05);
+ color: var(--light);
+ font-family: inherit;
+ font-size: .8rem;
+ }
+ textarea#mg-text {
+ width: 100%;
+ resize: vertical;
+ border-radius: 4px;
+ padding: .3rem;
+ background: rgba(255, 255, 255, .05);
+ border: 1px solid #333;
+ color: #fafafa;
+ font-family: 'Poppins', sans-serif;
+ font-size: .8rem;
+ min-height: 2rem;
+ max-height: 4rem;
+ }
+ .mg-template-container {
+ display: flex;
+ gap: .3rem;
+ justify-content: center;
+ flex-wrap: wrap;
+ }
+ .mg-template, .mg-template-add {
+ width: 80px;
+ height: 80px;
+ background: rgba(255, 255, 255, .1);
+ border: 2px solid #444;
+ border-radius: 6px;
+ cursor: pointer;
+ transition: border-color .2s, transform .2s;
+ overflow: hidden;
+ }
+ .mg-template img {
+ width: 100%;
+ height: 100%;
+ object-fit: cover;
+ }
+ .mg-template:hover, .mg-template-add:hover {
+ border-color: var(--green);
+ transform: scale(1.05);
+ }
+ .mg-template.error, .mg-template-add.error {
+ border-color: #ff4040;
+ background: rgba(255, 64, 64, .2);
+ }
+ .mg-template.disabled, .mg-template-add.disabled {
+ opacity: .4;
+ pointer-events: none;
+ }
+ .mg-template-add {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 1.2rem;
+ color: var(--light);
+ }
+ .mg-actions {
+ display: flex;
+ justify-content: center;
+ gap: .5rem;
+ margin-top: .75rem;
+ }
+ .mg-btn {
+ padding: .5rem 1rem;
+ border-radius: 20px;
+ border: none;
+ background: var(--green);
+ color: #000;
+ font-family: 'Poppins', sans-serif;
+ font-size: .85rem;
+ font-weight: 600;
+ cursor: pointer;
+ transition: transform .2s, background .2s;
+ }
+ .mg-btn:hover {
+ background: #17a146;
+ transform: scale(1.05);
+ }
+ .mg-btn[disabled] {
+ filter: grayscale(1) brightness(.6);
+ cursor: not-allowed;
+ }
+ .mg-rotate-icon-btn, .mg-flip-icon-btn {
+ width: 28px;
+ height: 28px;
+ border-radius: 50%;
+ border: none;
+ background: rgba(255, 255, 255, .1);
+ color: var(--light);
+ font-size: 1rem;
+ line-height: 28px;
+ text-align: center;
+ cursor: pointer;
+ transition: background .2s, transform .2s;
+ }
+ .mg-rotate-icon-btn:hover, .mg-flip-icon-btn:hover {
+ background: rgba(29, 185, 84, .3);
+ transform: scale(1.05);
+ }
+ .mg-rotate-icon-btn[disabled], .mg-flip-icon-btn[disabled] {
+ filter: grayscale(1) brightness(.6);
+ cursor: not-allowed;
+ }
+ .mg-layer-thumb {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #444;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s, opacity .2s, transform .2s;
+  opacity: .7;
+  position: relative;
+ }
+ .mg-layer-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+ }
+ .mg-layer-thumb.active {
+  border-color: var(--green);
+  opacity: 1;
+  transform: scale(1.05);
+ }
+ .mg-layer-thumb:hover {
+  border-color: var(--green);
+  opacity: 1;
+ }
+ .mg-layer-thumb .delete-layer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #ff4040;
+  font-size: .8rem;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+  background: rgba(0, 0, 0, .5);
+  border-radius: 0 0 0 4px;
+ }
+ .mg-layer-thumb .delete-layer:hover {
+  background: rgba(255, 64, 64, .5);
+ }
+ @media (max-width: 768px) {
+ #adhd-meme-generator {
+ padding: .5rem;
+ }
+ #adhd-meme-generator h2 { font-size: 1.5rem; }
+ #adhd-meme-generator h3 { font-size: .9rem; }
+ #adhd-meme-generator p.tagline { font-size: .8rem; }
+ .mg-preview canvas { max-height: 100%; }
+ .mg-controls {
+ grid-template-columns: 1fr;
+ gap: .5rem;
+ }
+ .mg-controls fieldset { padding: .6rem; }
+ .mg-template, .mg-template-add {
+ width: 64px;
+ height: 64px;
+ }
+ .mg-template-add { font-size: 1.3rem; }
+ .mg-rotate-icon-btn, .mg-flip-icon-btn { width: 24px; height: 24px; font-size: .9rem; }
+ }
+ @media (min-width: 769px) {
+ .mg-controls {
+ grid-template-columns: repeat(2, 1fr);
+ }
+ }
+ #mg-toast {
+ position: fixed;
+ bottom: 10px;
+ left: 50%;
+ transform: translateX(-50%);
+ background: rgba(0, 0, 0, .8);
+ padding: .4rem .8rem;
+ border-radius: 6px;
+ color: #fff;
+ font-size: .8rem;
+ opacity: 0;
+ pointer-events: none;
+ transition: opacity .35s;
+ }
+ .mg-layers {
+  display: flex;
+  gap: .3rem;
+  flex-wrap: wrap;
+  margin: .5rem 0 .3rem;
+  justify-content: center;
+ }
+ </style>
+</head>
+<body>
+ <section id="adhd-meme-generator" class="adhd-meme-generator">
+ <h2>$ADHD-ifier</h2>
+ <p class="tagline">Upload → add character → adjust → add text → download/share</p>
+
+ <div class="mg-preview no-image">
+ <canvas id="mg-canvas" width="800" height="600"></canvas>
+ <input type="file" id="mg-file" accept="image/*" style="display:none"/>
+ </div>
+
+ <div class="mg-controls">
+ <fieldset>
+ <legend>1 · Template</legend>
+ <div id="mg-layers" class="mg-layers"></div>
+ <h3>Add Layer</h3>
+ <div class="mg-template-container">
+ <div class="mg-template disabled" data-template="temp1.png"><img src="./temp1.png" alt="Template 1"></div>
+ <div class="mg-template disabled" data-template="temp2.png"><img src="./temp2.png" alt="Template 2"></div>
+ <div class="mg-template disabled" data-template="temp3.png"><img src="./temp3.png" alt="Template 3"></div>
+ <div class="mg-template disabled" data-template="temp4.png"><img src="./temp4.png" alt="Template 4"></div>
+ <label class="mg-template-add disabled" id="mg-template-add" title="Add Custom PNG">
+ <input type="file" id="mg-template-file" accept="image/png"/>
+ <span>+</span>
+ </label>
+ </div>
+ </fieldset>
+
+ <fieldset>
+ <legend>2 · Size/Position</legend>
+ <div class="mg-slider"><input type="range" id="mg-pos-x" min="0" max="100" value="50"/><span id="mg-pos-x-val">50</span></div>
+ <div class="mg-slider"><input type="range" id="mg-pos-y" min="0" max="100" value="50"/><span id="mg-pos-y-val">50</span></div>
+ <div class="mg-slider"><input type="range" id="mg-size" min="10" max="200" value="100"/><span id="mg-size-val">100</span></div>
+ <div class="mg-row">
+ <button class="mg-rotate-icon-btn" id="mg-rotate-icon" disabled title="Rotate 90°">↻</button>
+ <button class="mg-flip-icon-btn" id="mg-flip-icon" disabled title="Flip Horizontally">⇆</button>
+ </div>
+ </fieldset>
+
+ <fieldset>
+ <legend>3 · Text</legend>
+ <textarea id="mg-text" rows="2" placeholder="Meme text"></textarea>
+ <div class="mg-slider">
+ <span>Size</span>
+ <input type="range" id="mg-text-size" min="20" max="120" value="40"/>
+ <span id="mg-text-size-val">40</span>
+ </div>
+ <div class="mg-row">
+ <label>Y Pos
+ <input type="range" id="mg-text-pos" min="0" max="100" value="50"/>
+ <span id="mg-text-pos-val">50</span>
+ </label>
+ </div>
+ </fieldset>
+
+ <fieldset>
+ <legend>4 · Download</legend>
+ <div class="mg-row">
+ <label>Format:
+ <select id="mg-format">
+ <option value="png">PNG</option>
+ <option value="jpg">JPG</option>
+ </select>
+ </label>
+ </div>
+ <div class="mg-row">
+ <label><input type="checkbox" id="mg-confirm" /> I own rights</label>
+ </div>
+ </fieldset>
+ </div>
+
+ <div class="mg-actions">
+ <button class="mg-btn" id="mg-reset">Reset</button>
+ <button class="mg-btn" id="mg-download">Download</button>
+ <button class="mg-btn" id="mg-share">Share on X</button>
+ </div>
+ </section>
+
+ <div id="mg-toast"></div>
+
+ <script>
+ (function () {
+ const fileInput = document.getElementById('mg-file');
+ const canvas = document.getElementById('mg-canvas');
+ const preview = document.querySelector('.mg-preview');
+ const ctx = canvas.getContext('2d');
+ const templateFileInput = document.getElementById('mg-template-file');
+ const templateAddButton = document.getElementById('mg-template-add');
+ const txtArea = document.getElementById('mg-text');
+ const txtSizeEl = document.getElementById('mg-text-size');
+ const txtPosEl = document.getElementById('mg-text-pos');
+ let img = null;
+ let layers = []; // Array of { img, x, y, size, rot, flip }
+ let activeLayer = null; // Index of the currently editable layer
+
+ const W = () => canvas.width;
+ const H = () => canvas.height;
+ const toast = (msg) => {
+ const t = document.getElementById('mg-toast');
+ t.textContent = msg;
+ t.style.opacity = 1;
+ setTimeout(() => t.style.opacity = 0, 2400);
+ };
+
+ function refreshLayerUI() {
+  const wrap = document.getElementById('mg-layers');
+  wrap.innerHTML = '';
+  layers.forEach((layer, i) => {
+    const div = document.createElement('div');
+    div.className = `mg-layer-thumb ${i === activeLayer ? 'active' : ''}`;
+    div.innerHTML = `<img src="${layer.img.src}" alt="Layer ${i + 1}"><span class="delete-layer">x</span>`;
+    div.onclick = () => {
+      activeLayer = i;
+      document.getElementById('mg-pos-x').value = layer.x;
+      document.getElementById('mg-pos-x-val').textContent = layer.x;
+      document.getElementById('mg-pos-y').value = layer.y;
+      document.getElementById('mg-pos-y-val').textContent = layer.y;
+      document.getElementById('mg-size').value = layer.size;
+      document.getElementById('mg-size-val').textContent = layer.size;
+      document.getElementById('mg-rotate-icon').disabled = false;
+      document.getElementById('mg-flip-icon').disabled = false;
+      refreshLayerUI();
+      draw();
+    };
+    div.querySelector('.delete-layer').onclick = (e) => {
+      e.stopPropagation();
+      layers.splice(i, 1);
+      if (activeLayer >= layers.length) activeLayer = layers.length - 1;
+      if (layers.length === 0) {
+        activeLayer = null;
+        document.getElementById('mg-rotate-icon').disabled = true;
+        document.getElementById('mg-flip-icon').disabled = true;
+      }
+      refreshLayerUI();
+      draw();
+      toast('Layer removed');
+    };
+    wrap.appendChild(div);
+  });
+ }
+
+ function resetApp() {
+ img = null;
+ layers = [];
+ activeLayer = null;
+ refreshLayerUI();
+ document.getElementById('mg-pos-x').value = 50;
+ document.getElementById('mg-pos-x-val').textContent = 50;
+ document.getElementById('mg-pos-y').value = 50;
+ document.getElementById('mg-pos-y-val').textContent = 50;
+ document.getElementById('mg-size').value = 100;
+ document.getElementById('mg-size-val').textContent = 100;
+ document.getElementById('mg-text').value = '';
+ document.getElementById('mg-text-size').value = 40;
+ document.getElementById('mg-text-size-val').textContent = 40;
+ document.getElementById('mg-text-pos').value = 50;
+ document.getElementById('mg-text-pos-val').textContent = 50;
+ document.getElementById('mg-format').value = 'png';
+ document.getElementById('mg-confirm').checked = false;
+ document.querySelectorAll('.mg-template, .mg-template-add').forEach(t => {
+ t.classList.add('disabled');
+ t.classList.remove('error');
+ });
+ document.getElementById('mg-rotate-icon').disabled = true;
+ document.getElementById('mg-flip-icon').disabled = true;
+ preview.classList.add('no-image');
+ canvas.width = 800;
+ canvas.height = 600;
+ draw();
+ }
+
+ ['input', 'keyup', 'change'].forEach(ev => {
+ txtArea.addEventListener(ev, draw);
+ });
+ [txtSizeEl, txtPosEl].forEach(inp => {
+ inp.addEventListener('input', () => {
+ if (inp === txtSizeEl) document.getElementById('mg-text-size-val').textContent = inp.value;
+ else if (inp === txtPosEl) document.getElementById('mg-text-pos-val').textContent = inp.value;
+ draw();
+ });
+ });
+
+ function draw() {
+ ctx.clearRect(0, 0, W(), H());
+ if (img) {
+ ctx.drawImage(img, 0, 0, W(), H());
+ }
+
+ layers.forEach(layer => {
+  const scale = layer.size / 100;
+  const templateWidth = layer.img.width * scale;
+  const templateHeight = layer.img.height * scale;
+  const templateX = W() * (layer.x / 100) - templateWidth / 2;
+  const templateY = H() * (layer.y / 100) - templateHeight / 2;
+
+  ctx.save();
+  ctx.translate(W() * (layer.x / 100), H() * (layer.y / 100));
+  ctx.rotate((layer.rot * Math.PI) / 180);
+  ctx.scale(layer.flip ? -1 : 1, 1);
+  ctx.drawImage(layer.img, -templateWidth / 2, -templateHeight / 2, templateWidth, templateHeight);
+  ctx.restore();
+ });
+
+ const userText = txtArea.value.trim();
+ if (userText) {
+ ctx.font = `${txtSizeEl.value}px Impact, sans-serif`;
+ ctx.textAlign = 'center';
+ ctx.textBaseline = 'top';
+ ctx.lineWidth = txtSizeEl.value * 0.08;
+ ctx.strokeStyle = 'black';
+ ctx.fillStyle = '#ffffff';
+
+ const lineHeight = +txtSizeEl.value * 1.2;
+ const startY = H() * (+txtPosEl.value / 100);
+
+ userText.split(/\r?\n/).forEach((line, i) => {
+ const y = startY + i * lineHeight;
+ ctx.strokeText(line, W()/2, y);
+ ctx.fillText(line, W()/2, y);
+ });
+ }
+ }
+
+ function handleFile(file) {
+ if (!file.type.startsWith('image/')) {
+ console.log('Unsupported file type:', file.type);
+ return toast('Unsupported file type');
+ }
+ if (file.size > 5 * 1024 * 1024) {
+ console.log('File too large:', file.size);
+ return toast('File > 5 MB');
+ }
+ const image = new Image();
+ image.onload = () => {
+ img = image;
+ const maxSide = 1600;
+ let { width: w, height: h } = image;
+ if (Math.max(w, h) > maxSide) {
+ const ratio = maxSide / Math.max(w, h);
+ w = w * ratio; h = h * ratio;
+ }
+ canvas.width = w;
+ canvas.height = h;
+ preview.classList.remove('no-image');
+ document.querySelectorAll('.mg-template, .mg-template-add').forEach(t => t.classList.remove('disabled'));
+ draw();
+ };
+ image.onerror = () => {
+ console.error('Failed to load uploaded image');
+ toast('Failed to load image');
+ };
+ image.src = URL.createObjectURL(file);
+ }
+
+ function handleTemplateSelection(templateUrl) {
+ if (!img) return toast('Upload an image first');
+ if (layers.length >= 10) return toast('Maximum 10 layers allowed');
+ const image = new Image();
+ image.onload = () => {
+ layers.push({
+ img: image,
+ x: 50,
+ y: 50,
+ size: 100,
+ rot: 0,
+ flip: false
+ });
+ activeLayer = layers.length - 1;
+ document.getElementById('mg-pos-x').value = 50;
+ document.getElementById('mg-pos-x-val').textContent = 50;
+ document.getElementById('mg-pos-y').value = 50;
+ document.getElementById('mg-pos-y-val').textContent = 50;
+ document.getElementById('mg-size').value = 100;
+ document.getElementById('mg-size-val').textContent = 100;
+ document.getElementById('mg-rotate-icon').disabled = false;
+ document.getElementById('mg-flip-icon').disabled = false;
+ refreshLayerUI();
+ draw();
+ toast('Layer added successfully');
+ };
+ image.onerror = () => {
+ console.error('Failed to load template image:', templateUrl);
+ toast('Failed to load template image');
+ };
+ image.src = templateUrl.startsWith('data:') ? templateUrl : `./${templateUrl}`;
+ }
+
+ function handleCustomTemplate(file) {
+ if (!img) return toast('Upload an image first');
+ if (!file) return toast('No file selected');
+ if (file.type !== 'image/png') return toast('Only PNG files allowed');
+ if (file.size > 5 * 1024 * 1024) return toast('File > 5 MB');
+ if (layers.length >= 10) return toast('Maximum 10 layers allowed');
+ const reader = new FileReader();
+ reader.onload = () => {
+ const image = new Image();
+ image.onload = () => {
+ layers.push({
+ img: image,
+ x: 50,
+ y: 50,
+ size: 100,
+ rot: 0,
+ flip: false
+ });
+ activeLayer = layers.length - 1;
+ document.getElementById('mg-pos-x').value = 50;
+ document.getElementById('mg-pos-x-val').textContent = 50;
+ document.getElementById('mg-pos-y').value = 50;
+ document.getElementById('mg-pos-y-val').textContent = 50;
+ document.getElementById('mg-size').value = 100;
+ document.getElementById('mg-size-val').textContent = 100;
+ document.getElementById('mg-rotate-icon').disabled = false;
+ document.getElementById('mg-flip-icon').disabled = false;
+ refreshLayerUI();
+ draw();
+ toast('Layer added successfully');
+ };
+ image.onerror = () => {
+ console.error('Failed to load custom PNG');
+ toast('Failed to load custom PNG');
+ templateAddButton.classList.add('error');
+ };
+ image.src = reader.result;
+ };
+ reader.onerror = () => {
+ console.error('Failed to read custom PNG');
+ toast('Failed to load custom PNG');
+ templateAddButton.classList.add('error');
+ };
+ reader.readAsDataURL(file);
+ }
+
+ canvas.addEventListener('click', () => {
+ if (!img) fileInput.click();
+ });
+ fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+ ['dragenter', 'dragover'].forEach(ev => canvas.addEventListener(ev, e => {
+ if (!img) {
+ e.preventDefault();
+ preview.classList.add('dragover');
+ }
+ }));
+ ['dragleave', 'drop'].forEach(ev => canvas.addEventListener(ev, e => {
+ if (!img) {
+ e.preventDefault();
+ preview.classList.remove('dragover');
+ }
+ }));
+ canvas.addEventListener('drop', e => {
+ if (!img) handleFile(e.dataTransfer.files[0]);
+ });
+
+ document.querySelectorAll('.mg-template').forEach(template => {
+ template.addEventListener('click', () => {
+ if (!img) {
+ toast('Upload an image first');
+ return;
+ }
+ const templateUrl = template.dataset.template;
+ handleTemplateSelection(templateUrl);
+ });
+ const img = template.querySelector('img');
+ img.onerror = () => {
+ console.error('Failed to load thumbnail:', img.src);
+ template.classList.add('error');
+ toast(`Failed to load thumbnail for ${template.dataset.template}`);
+ };
+ });
+
+ templateAddButton.addEventListener('click', () => {
+ if (!img) toast('Upload an image first');
+ });
+ templateFileInput.addEventListener('change', e => {
+ const file = e.target.files[0];
+ handleCustomTemplate(file);
+ e.target.value = '';
+ });
+
+ document.getElementById('mg-reset').addEventListener('click', () => {
+ if (confirm('Are you sure you want to restart your masterpiece?')) {
+ resetApp();
+ }
+ });
+
+ document.querySelectorAll('.mg-template, .mg-template-add').forEach(t => t.classList.add('disabled'));
+ document.getElementById('mg-rotate-icon').disabled = true;
+ document.getElementById('mg-flip-icon').disabled = true;
+
+ ['mg-pos-x', 'mg-pos-y', 'mg-size'].forEach(id => {
+ const inpt = document.getElementById(id);
+ inpt.addEventListener('input', () => {
+ if (activeLayer === null) return;
+ const layer = layers[activeLayer];
+ if (id === 'mg-pos-x') layer.x = +inpt.value;
+ if (id === 'mg-pos-y') layer.y = +inpt.value;
+ if (id === 'mg-size') layer.size = +inpt.value;
+ document.getElementById(id + '-val').textContent = inpt.value;
+ draw();
+ });
+ });
+
+ document.getElementById('mg-rotate-icon').addEventListener('click', () => {
+ if (activeLayer === null) return toast('Select a layer first');
+ layers[activeLayer].rot = (layers[activeLayer].rot + 90) % 360;
+ draw();
+ });
+
+ document.getElementById('mg-flip-icon').addEventListener('click', () => {
+ if (activeLayer === null) return toast('Select a layer first');
+ layers[activeLayer].flip = !layers[activeLayer].flip;
+ draw();
+ });
+
+ document.getElementById('mg-download').addEventListener('click', () => {
+ if (!img) return toast('Upload an image first');
+ if (!document.getElementById('mg-confirm').checked) return toast('Confirm image rights');
+ const fmt = document.getElementById('mg-format').value;
+ const link = document.createElement('a');
+ link.download = `adhd-meme.${fmt}`;
+ link.href = canvas.toDataURL(`image/${fmt}`);
+ link.click();
+ });
+
+ document.getElementById('mg-share').addEventListener('click', () => {
+ if (!img) return toast('Upload an image first');
+ if (!document.getElementById('mg-confirm').checked) return toast('Confirm image rights');
+ const memeLink = '[replace this with the image from your downloads, you wonderful, hyper-active degen]';
+ const tweet = `Got distracted & made this!\n\nCheck it out: ${memeLink} \n\nhttps://adhdegens.fun/ $ADHD`;
+ const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`;
+ window.open(intent, '_blank');
+ });
+
+ resetApp(); // Initialize with no image
+ })();
+ </script>
+</body>
+</html>
