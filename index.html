@@ -132,6 +132,13 @@
  text-align: right;
  min-width: 32px;
  }
+ .mg-slider-label {
+ font-size: .75rem;
+ width: 32px;
+ text-align: left;
+ min-width: 32px;
+ opacity: .8;
+ }
  .mg-row {
  display: flex;
  align-items: center;
@@ -314,6 +321,7 @@
  }
  .mg-template-add { font-size: 1.3rem; }
  .mg-rotate-icon-btn, .mg-flip-icon-btn { width: 24px; height: 24px; font-size: .9rem; }
+ .mg-slider-label { font-size: .7rem; }
  }
  @media (min-width: 769px) {
  .mg-controls {
@@ -372,9 +380,9 @@
 
  <fieldset>
  <legend>2 · Size/Position</legend>
- <div class="mg-slider"><input type="range" id="mg-pos-x" min="0" max="100" value="50"/><span id="mg-pos-x-val">50</span></div>
- <div class="mg-slider"><input type="range" id="mg-pos-y" min="0" max="100" value="50"/><span id="mg-pos-y-val">50</span></div>
- <div class="mg-slider"><input type="range" id="mg-size" min="10" max="200" value="100"/><span id="mg-size-val">100</span></div>
+ <div class="mg-slider"><span class="mg-slider-label">X</span><input type="range" id="mg-pos-x" min="0" max="100" value="50"/><span id="mg-pos-x-val">50</span></div>
+ <div class="mg-slider"><span class="mg-slider-label">Y</span><input type="range" id="mg-pos-y" min="0" max="100" value="50"/><span id="mg-pos-y-val">50</span></div>
+ <div class="mg-slider"><span class="mg-slider-label">Size</span><input type="range" id="mg-size" min="10" max="200" value="100"/><span id="mg-size-val">100</span></div>
  <div class="mg-row">
  <button class="mg-rotate-icon-btn" id="mg-rotate-icon" disabled title="Rotate 90°">↻</button>
  <button class="mg-flip-icon-btn" id="mg-flip-icon" disabled title="Flip Horizontally">⇆</button>
