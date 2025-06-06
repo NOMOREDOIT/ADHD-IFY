@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- CHANGE 1: Added theme-color meta tag -->
+    <meta name="theme-color" content="#111111" />
     <title>ADHD-ifier</title>
     <link rel="icon" type="image/png" href="favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         html {
             scroll-behavior: smooth;
+            /* CHANGE 2: Added a solid background-color as a fallback */
+            background-color: #111;
             background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
-            overscroll-behavior: none;
+            /* CHANGE 3: Removed 'overscroll-behavior: none;' to allow the native (now colored) bounce effect */
             margin: 0;
             padding: 0;
             -webkit-overflow-scrolling: touch;
@@ -41,7 +45,7 @@
             color: var(--light);
             background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
             padding: 1rem .5rem;
-            max-width: 980px;
+            max-width: 1200px;
             width: 100%;
             margin: 0 auto;
             display: flex;
@@ -67,16 +71,15 @@
         }
         .mg-preview {
             width: 100%;
-            max-width: 600px;
             margin: 0 auto;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
+            touch-action: none;
         }
         .mg-preview canvas {
             width: 100%;
-            max-width: 600px;
             height: auto;
             border: 1px solid #444;
             border-radius: 8px;
@@ -86,6 +89,8 @@
         .mg-preview.no-image canvas {
             border: 2px dashed #333;
             cursor: pointer;
+            width: 100%;
+            aspect-ratio: 4/3;
         }
         .mg-preview.no-image canvas:hover {
             border-color: var(--green);
@@ -102,7 +107,7 @@
         }
         .mg-controls {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: 1fr;
             gap: .75rem;
             width: 100%;
         }
@@ -152,22 +157,6 @@
             margin: .4rem 0;
             flex-wrap: nowrap;
         }
-        .mg-row label {
-            display: flex;
-            align-items: center;
-            gap: .25rem;
-            font-size: .8rem;
-            cursor: pointer;
-        }
-        .mg-row select {
-            padding: .25rem .4rem;
-            border-radius: 4px;
-            border: 1px solid var(--green);
-            background: rgba(255, 255, 255, .05);
-            color: var(--light);
-            font-family: inherit;
-            font-size: .8rem;
-        }
         textarea#mg-text {
             width: 100%;
             resize: vertical;
@@ -187,7 +176,7 @@
             justify-content: center;
             flex-wrap: wrap;
         }
-        .mg-template, .mg-template-add {
+        .mg-template, .mg-template-add, .mg-template-more {
             width: 80px;
             height: 80px;
             background: rgba(255, 255, 255, .1);
@@ -196,31 +185,39 @@
             cursor: pointer;
             transition: border-color .2s, transform .2s;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light);
+            line-height: 1;
         }
         .mg-template img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .mg-template:hover, .mg-template-add:hover {
+        .mg-template:hover, .mg-template-add:hover, .mg-template-more:hover {
             border-color: var(--green);
             transform: scale(1.05);
         }
-        .mg-template.error, .mg-template-add.error {
-            border-color: #ff4040;
-            background: rgba(255, 64, 64, .2);
-        }
-        .mg-template.disabled, .mg-template-add.disabled {
+        .mg-template.disabled, .mg-template-add.disabled, .mg-template-more.disabled {
             opacity: .4;
             pointer-events: none;
         }
-        .mg-template-add {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: var(--light);
+        
+        /* --- NEW: Specific styling for SVG icons in buttons --- */
+        .mg-template-add svg,
+        .mg-template-more svg {
+            width: 36px;
+            height: 36px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
         }
+        .mg-template-add:hover svg,
+        .mg-template-more:hover svg {
+            opacity: 1;
+        }
+
         .mg-text-layer-add {
             width: 80px;
             height: 32px;
@@ -233,7 +230,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 1.5rem; /* Larger '+' sign */
             color: var(--light);
         }
         .mg-text-layer-add:hover {
@@ -262,15 +259,7 @@
             cursor: pointer;
             transition: transform .2s, background .2s;
         }
-        .mg-btn:hover {
-            background: #17a146;
-            transform: scale(1.05);
-        }
-        .mg-btn[disabled] {
-            filter: grayscale(1) brightness(.6);
-            cursor: not-allowed;
-        }
-        .mg-rotate-icon-btn, .mg-flip-icon-btn {
+        .mg-icon-btn {
             width: 28px;
             height: 28px;
             border-radius: 50%;
@@ -282,14 +271,17 @@
             text-align: center;
             cursor: pointer;
             transition: background .2s, transform .2s;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
         }
-        .mg-rotate-icon-btn:hover, .mg-flip-icon-btn:hover {
-            background: rgba(29, 185, 84, .3);
-            transform: scale(1.05);
-        }
-        .mg-rotate-icon-btn[disabled], .mg-flip-icon-btn[disabled] {
-            filter: grayscale(1) brightness(.6);
-            cursor: not-allowed;
+        .color-swatch {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 1px solid #888;
+            border-radius: 3px;
+            background: linear-gradient(45deg, #000 0%, #000 50%, #fff 50%, #fff 100%);
         }
         .mg-layer-thumb {
             width: 40px;
@@ -332,6 +324,7 @@
             background: rgba(255, 64, 64, .5);
         }
         .mg-text-thumb {
+            position: relative;
             width: 80px;
             height: 32px;
             background: rgba(255, 255, 255, .1);
@@ -343,11 +336,10 @@
             font-size: .7rem;
             cursor: pointer;
             opacity: .7;
-            transition: border-color .2s, opacity .2s, transform .2s;
-            overflow: hidden; /* Ensure text doesn't overflow */
+            overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            padding: 0 4px;
+            padding: 0 16px 0 4px;
         }
         .mg-text-thumb.active {
             border-color: var(--green);
@@ -360,50 +352,44 @@
         }
         .mg-text-thumb .delete-layer {
             position: absolute;
-            top: 0;
-            right: 0;
+            top: 1px;
+            right: 1px;
             padding: 2px 4px;
             font-size: .7rem;
             background: rgba(0, 0, 0, .5);
             color: #ff4040;
             cursor: pointer;
+            border-radius: 4px;
         }
         .mg-text-thumb .delete-layer:hover {
             background: rgba(255, 64, 64, .5);
         }
-        @media (max-width: 768px) {
-            #adhd-meme-generator {
-                padding: .5rem;
-            }
-            #adhd-meme-generator h2 { font-size: 1.5rem; }
-            #adhd-meme-generator h3 { font-size: .9rem; }
-            #adhd-meme-generator p.tagline { font-size: .8rem; }
-            .mg-preview canvas { max-height: 100%; }
-            .mg-controls {
-                grid-template-columns: 1fr;
-                gap: .5rem;
-            }
-            .mg-controls fieldset { padding: .6rem; }
-            .mg-template, .mg-template-add {
-                width: 64px;
-                height: 64px;
-            }
-            .mg-template-add { font-size: 1.3rem; }
-            .mg-text-layer-add {
-                width: 64px;
-                height: 32px;
-                font-size: 1rem;
-            }
-            .mg-text-thumb {
-                width: 64px;
-                height: 32px;
-            }
-            .mg-rotate-icon-btn, .mg-flip-icon-btn { width: 24px; height: 24px; font-size: .9rem; }
-            .mg-slider-label { font-size: .7rem; }
+        .mg-editor-layout {
+            display: flex;
+            flex-direction: column; 
+            gap: .75rem;
+            width: 100%;
         }
-        @media (min-width: 769px) {
+        @media (max-width: 899px) {
+            #adhd-meme-generator { padding: .5rem; }
             .mg-controls {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            }
+        }
+        @media (min-width: 900px) {
+            .mg-editor-layout {
+                display: grid;
+                grid-template-columns: minmax(320px, 420px) 1fr;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            .mg-controls-wrapper {
+                grid-column: 1 / 2;
+            }
+            .mg-preview-wrapper {
+                grid-column: 2 / 3;
+                position: sticky;
+                top: 1rem;
             }
         }
         #mg-toast {
@@ -427,79 +413,160 @@
             margin: .5rem 0 .3rem;
             justify-content: center;
         }
+        #mg-template-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s, visibility 0s 0.3s;
+        }
+        #mg-template-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.3s, visibility 0s 0s;
+        }
+        #mg-template-grid-wrapper {
+            background: linear-gradient(135deg, #1f1f1f 0%, #161616 100%);
+            border: 1px solid var(--green);
+            padding: 2rem 1.5rem 1.5rem;
+            border-radius: 12px;
+            position: relative;
+            max-width: min(90vw, 420px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        #mg-template-overlay.visible #mg-template-grid-wrapper {
+            transform: scale(1);
+        }
+        #mg-template-grid-wrapper h4 {
+            margin: -0.5rem 0 1rem;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #eee;
+        }
+        #mg-template-overlay-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 2rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s, transform 0.2s;
+        }
+        #mg-template-overlay-close:hover {
+            color: #fff;
+            transform: scale(1.1);
+        }
+        #mg-template-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        @media (max-width: 480px) {
+             #mg-template-grid {
+                grid-template-columns: repeat(3, 80px);
+             }
+        }
     </style>
 </head>
 <body>
     <section id="adhd-meme-generator" class="adhd-meme-generator">
         <h2>$ADHD-ifier</h2>
         <p class="tagline">Upload → add character → adjust → add text → download/share</p>
+        
+        <div class="mg-editor-layout">
+            
+            <div class="mg-controls-wrapper">
+                <div class="mg-controls">
+                    <fieldset>
+                        <legend>1 · Template</legend>
+                        <div id="mg-layers" class="mg-layers"></div>
+                        <h3>Add Layer</h3>
+                        <div class="mg-template-container">
+                            <div class="mg-template disabled" data-template="1.png"><img src="./1.png" alt="Template 1"></div>
+                            <div class="mg-template disabled" data-template="2.png"><img src="./2.png" alt="Template 2"></div>
+                            <div class="mg-template disabled" data-template="3.png"><img src="./3.png" alt="Template 3"></div>
+                            <div class="mg-template disabled" data-template="4.png"><img src="./4.png" alt="Template 4"></div>
+                            <!-- MODIFIED: "More" button with a clear grid icon -->
+                            <div class="mg-template-more disabled" id="mg-template-more" title="More templates">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M10 3H4C3.44772 3 3 3.44772 3 4V10C3 10.5523 3.44772 11 4 11H10C10.5523 11 11 10.5523 11 10V4C11 3.44772 10.5523 3 10 3ZM8.5 8.5H5.5V5.5H8.5V8.5Z M10 13H4C3.44772 13 3 13.4477 3 14V20C3 20.5523 3.44772 21 4 21H10C10.5523 21 11 20.5523 11 20V14C11 13.4477 10.5523 13 10 13ZM8.5 18.5H5.5V15.5H8.5V18.5Z M20 3H14C13.4477 3 13 3.44772 13 4V10C13 10.5523 13.4477 11 14 11H20C20.5523 11 21 10.5523 21 10V4C21 3.44772 20.5523 3 20 3ZM18.5 8.5H15.5V5.5H18.5V8.5Z M20 13H14C13.4477 13 13 13.4477 13 14V20C13 20.5523 13.4477 21 14 21H20C20.5523 21 21 20.5523 21 20V14C21 13.4477 20.5523 13 20 13ZM18.5 18.5H15.5V15.5H18.5V18.5Z"></path>
+                                </svg>
+                            </div>
+                            <!-- MODIFIED: "Upload" button with a clear upload icon -->
+                            <label class="mg-template-add disabled" id="mg-template-add" title="Add Custom PNG">
+                                <input type="file" id="mg-template-file" accept="image/png"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M13 10H18L12 3L6 10H11V16H13V10ZM4 18V20H20V18H4Z"></path>
+                                </svg>
+                            </label>
+                        </div>
+                    </fieldset>
 
-        <div class="mg-preview no-image">
-            <canvas id="mg-canvas" width="800" height="600"></canvas>
-            <input type="file" id="mg-file" accept="image/*" style="display:none"/>
-        </div>
+                    <fieldset>
+                        <legend>2 · Size/Position</legend>
+                        <div class="mg-slider"><span class="mg-slider-label">X</span><input type="range" id="mg-pos-x" min="0" max="100" value="50" disabled/><span id="mg-pos-x-val">50</span></div>
+                        <div class="mg-slider"><span class="mg-slider-label">Y</span><input type="range" id="mg-pos-y" min="0" max="100" value="50" style="transform: scaleY(-1);" disabled/><span id="mg-pos-y-val">50</span></div>
+                        <div class="mg-slider"><span class="mg-slider-label">Size</span><input type="range" id="mg-size" min="10" max="200" value="100" disabled/><span id="mg-size-val">100</span></div>
+                        <div class="mg-row">
+                            <button class="mg-icon-btn" id="mg-rotate-icon" disabled title="Rotate 90°">↻</button>
+                            <button class="mg-icon-btn" id="mg-flip-icon" disabled title="Flip Horizontally">⇆</button>
+                        </div>
+                    </fieldset>
 
-        <div class="mg-controls">
-            <fieldset>
-                <legend>1 · Template</legend>
-                <div id="mg-layers" class="mg-layers"></div>
-                <h3>Add Layer</h3>
-                <div class="mg-template-container">
-                    <div class="mg-template disabled" data-template="temp1.png"><img src="./temp1.png" alt="Template 1"></div>
-                    <div class="mg-template disabled" data-template="temp2.png"><img src="./temp2.png" alt="Template 2"></div>
-                    <div class="mg-template disabled" data-template="temp3.png"><img src="./temp3.png" alt="Template 3"></div>
-                    <div class="mg-template disabled" data-template="temp4.png"><img src="./temp4.png" alt="Template 4"></div>
-                    <label class="mg-template-add disabled" id="mg-template-add" title="Add Custom PNG">
-                        <input type="file" id="mg-template-file" accept="image/png"/>
-                        <span>+</span>
-                    </label>
+                    <fieldset>
+                        <legend>3 · Text</legend>
+                        <div id="mg-text-layer-bar" class="mg-template-container" style="margin-bottom:.5rem">
+                            <div id="mg-text-layer-add" class="mg-text-layer-add disabled" title="Add text layer"><span>+</span></div>
+                        </div>
+                        <textarea id="mg-text" rows="2" placeholder="Meme text" disabled></textarea>
+                        <div class="mg-slider">
+                            <span class="mg-slider-label">Size</span>
+                            <input type="range" id="mg-text-size" min="10" max="150" value="40" disabled/>
+                            <span id="mg-text-size-val">40</span>
+                        </div>
+                        <div class="mg-slider">
+                            <span class="mg-slider-label">X Pos</span>
+                            <input type="range" id="mg-text-pos-x" min="0" max="100" value="50" disabled/>
+                            <span id="mg-text-pos-x-val">50</span>
+                        </div>
+                        <div class="mg-slider">
+                            <span class="mg-slider-label">Y Pos</span>
+                            <input type="range" id="mg-text-pos-y" min="0" max="100" value="50" disabled/>
+                            <span id="mg-text-pos-y-val">50</span>
+                        </div>
+                        <div class="mg-row" style="justify-content: center;">
+                            <button class="mg-icon-btn" id="mg-text-color-toggle" disabled title="Toggle Text Color"><span class="color-swatch"></span></button>
+                        </div>
+                    </fieldset>
                 </div>
-            </fieldset>
+            </div>
+            
+            <div class="mg-preview-wrapper">
+                <div class="mg-preview no-image">
+                    <canvas id="mg-canvas" width="800" height="600"></canvas>
+                    <input type="file" id="mg-file" accept="image/*" style="display:none"/>
+                </div>
+            </div>
 
-            <fieldset>
-                <legend>2 · Size/Position</legend>
-                <div class="mg-slider"><span class="mg-slider-label">X</span><input type="range" id="mg-pos-x" min="0" max="100" value="50"/><span id="mg-pos-x-val">50</span></div>
-                <div class="mg-slider"><span class="mg-slider-label">Y</span><input type="range" id="mg-pos-y" min="0" max="100" value="50" style="transform: scaleY(-1);"/><span id="mg-pos-y-val">50</span></div>
-                <div class="mg-slider"><span class="mg-slider-label">Size</span><input type="range" id="mg-size" min="10" max="200" value="100"/><span id="mg-size-val">100</span></div>
-                <div class="mg-row">
-                    <button class="mg-rotate-icon-btn" id="mg-rotate-icon" disabled title="Rotate 90°">↻</button>
-                    <button class="mg-flip-icon-btn" id="mg-flip-icon" disabled title="Flip Horizontally">⇆</button>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend>3 · Text</legend>
-                <div id="mg-text-layer-bar" class="mg-template-container" style="margin-bottom:.5rem">
-                    <div id="mg-text-layer-add" class="mg-text-layer-add disabled" title="Add text layer"><span>+</span></div>
-                </div>
-                <textarea id="mg-text" rows="2" placeholder="Meme text"></textarea>
-                <div class="mg-slider">
-                    <span>Size</span>
-                    <input type="range" id="mg-text-size" min="10" max="100" value="40"/>
-                    <span id="mg-text-size-val">40</span>
-                </div>
-                <div class="mg-row">
-                    <label>Y Pos
-                        <input type="range" id="mg-text-pos" min="0" max="100" value="50"/>
-                        <span id="mg-text-pos-val">50</span>
-                    </label>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend>4 · Download</legend>
-                <div class="mg-row">
-                    <label>Format:
-                        <select id="mg-format">
-                            <option value="png">PNG</option>
-                            <option value="jpg">JPG</option>
-                        </select>
-                    </label>
-                </div>
-                <div class="mg-row">
-                    <label><input type="checkbox" id="mg-confirm" /> I own rights</label>
-                </div>
-            </fieldset>
         </div>
 
         <div class="mg-actions">
@@ -511,42 +578,140 @@
 
     <div id="mg-toast"></div>
 
+    <div id="mg-template-overlay">
+        <div id="mg-template-grid-wrapper">
+            <button id="mg-template-overlay-close">×</button>
+            <h4>Choose a template</h4>
+            <div id="mg-template-grid">
+                <div class="mg-template" data-template="1.png"><img src="./1.png" alt="Template 1"></div>
+                <div class="mg-template" data-template="2.png"><img src="./2.png" alt="Template 2"></div>
+                <div class="mg-template" data-template="3.png"><img src="./3.png" alt="Template 3"></div>
+                <div class="mg-template" data-template="4.png"><img src="./4.png" alt="Template 4"></div>
+                <div class="mg-template" data-template="5.png"><img src="./5.png" alt="Template 5"></div>
+                <div class="mg-template" data-template="6.png"><img src="./6.png" alt="Template 6"></div>
+                <div class="mg-template" data-template="7.png"><img src="./7.png" alt="Template 7"></div>
+                <div class="mg-template" data-template="8.png"><img src="./8.png" alt="Template 8"></div>
+                <div class="mg-template" data-template="9.png"><img src="./9.png" alt="Template 9"></div>
+                <div class="mg-template" data-template="10.png"><img src="./10.png" alt="Template 10"></div>
+                <div class="mg-template" data-template="11.png"><img src="./11.png" alt="Template 11"></div>
+                <div class="mg-template" data-template="12.png"><img src="./12.png" alt="Template 12"></div>
+                <div class="mg-template" data-template="13.png"><img src="./13.png" alt="Template 13"></div>
+                <div class="mg-template" data-template="14.png"><img src="./14.png" alt="Template 14"></div>
+                <div class="mg-template" data-template="15.png"><img src="./15.png" alt="Template 15"></div>
+                <div class="mg-template" data-template="16.png"><img src="./16.png" alt="Template 16"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function () {
             const fileInput = document.getElementById('mg-file');
             const canvas = document.getElementById('mg-canvas');
             const preview = document.querySelector('.mg-preview');
+            const previewWrapper = document.querySelector('.mg-preview-wrapper');
             const ctx = canvas.getContext('2d');
-            const templateFileInput = document.getElementById('mg-template-file');
-            const templateAddButton = document.getElementById('mg-template-add');
             const txtArea = document.getElementById('mg-text');
             const txtSizeEl = document.getElementById('mg-text-size');
-            const txtPosEl = document.getElementById('mg-text-pos');
-            let img = null;
-            let layers = []; // Array of { img, x, y, size, rot, flip }
-            let activeLayer = null; // Index of the currently editable layer
-            let textLayers = []; // Start with no text layers
-            let activeTextLayer = null; // No active text layer initially
-
-            // Pixel-perfect canvas sizing
+            const txtPosXEl = document.getElementById('mg-text-pos-x');
+            const txtPosYEl = document.getElementById('mg-text-pos-y');
+            const textColorToggle = document.getElementById('mg-text-color-toggle');
+            
+            const templateOverlay = document.getElementById('mg-template-overlay');
+            const moreTemplatesBtn = document.getElementById('mg-template-more');
+            const closeOverlayBtn = document.getElementById('mg-template-overlay-close');
+            
+            let img = null, layers = [], activeLayer = null, textLayers = [], activeTextLayer = null;
+            let interaction = { active: false };
+            const HANDLE_SIZE = 10;
             const DPR = window.devicePixelRatio || 1;
-            function resizeCanvasCSS(w, h) {
-                canvas.width = w * DPR; // internal bitmap
-                canvas.height = h * DPR;
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.scale(DPR, DPR);
-                ctx.imageSmoothingEnabled = true;
-                ctx.imageSmoothingQuality = 'high';
-            }
 
-            const W = () => canvas.width / DPR; // CSS pixels
-            const H = () => canvas.height / DPR; // CSS pixels
+            function resizeCanvasCSS(w, h) {
+                canvas.width = w * DPR; canvas.height = h * DPR;
+                ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.scale(DPR, DPR);
+                ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+            }
+            const W = () => canvas.width / DPR;
+            const H = () => canvas.height / DPR;
             const toast = (msg) => {
                 const t = document.getElementById('mg-toast');
-                t.textContent = msg;
-                t.style.opacity = 1;
+                t.textContent = msg; t.style.opacity = 1;
                 setTimeout(() => t.style.opacity = 0, 2400);
             };
+
+            function fitCanvasToContainer() {
+                if (!img) return;
+                canvas.style.width = ''; canvas.style.height = '';
+                const containerWidth = previewWrapper.clientWidth;
+                const containerHeight = window.innerHeight * 0.85; 
+                const imgAspectRatio = img.naturalWidth / img.naturalHeight;
+                const containerAspectRatio = containerWidth / containerHeight;
+                if (imgAspectRatio > containerAspectRatio) {
+                    canvas.style.width = containerWidth + 'px';
+                    canvas.style.height = 'auto';
+                } else {
+                    canvas.style.height = containerHeight + 'px';
+                    canvas.style.width = 'auto';
+                }
+            }
+
+            function updateAllControls() { updateImageControls(); updateTextControls(); }
+
+            function updateImageControls() {
+                const disabled = activeLayer === null;
+                document.getElementById('mg-pos-x').disabled = disabled;
+                document.getElementById('mg-pos-y').disabled = disabled;
+                document.getElementById('mg-size').disabled = disabled;
+                document.getElementById('mg-rotate-icon').disabled = disabled;
+                document.getElementById('mg-flip-icon').disabled = disabled;
+                if (!disabled) {
+                    const l = layers[activeLayer];
+                    document.getElementById('mg-pos-x').value = l.x;
+                    document.getElementById('mg-pos-x-val').textContent = Math.round(l.x);
+                    document.getElementById('mg-pos-y').value = 100 - l.y;
+                    document.getElementById('mg-pos-y-val').textContent = Math.round(l.y);
+                    document.getElementById('mg-size').value = l.size;
+                    document.getElementById('mg-size-val').textContent = Math.round(l.size);
+                }
+            }
+
+            function updateTextControls() {
+                txtArea.disabled = img === null;
+                const controlsDisabled = activeTextLayer === null;
+                txtSizeEl.disabled = controlsDisabled;
+                txtPosXEl.disabled = controlsDisabled;
+                txtPosYEl.disabled = controlsDisabled;
+                textColorToggle.disabled = controlsDisabled;
+                if (!controlsDisabled) {
+                    const t = textLayers[activeTextLayer];
+                    txtArea.value = t.text;
+                    txtSizeEl.value = t.size;
+                    document.getElementById('mg-text-size-val').textContent = Math.round(t.size);
+                    txtPosXEl.value = t.x;
+                    document.getElementById('mg-text-pos-x-val').textContent = Math.round(t.x);
+                    txtPosYEl.value = t.y;
+                    document.getElementById('mg-text-pos-y-val').textContent = Math.round(t.y);
+                } else {
+                    txtArea.value = '';
+                }
+            }
+            
+            function selectLayer(i) {
+                activeLayer = i; activeTextLayer = null;
+                refreshLayerUI(); refreshTextThumbs();
+                updateAllControls(); draw();
+            }
+
+            function selectTextLayer(i) {
+                activeTextLayer = i; activeLayer = null;
+                refreshLayerUI(); refreshTextThumbs();
+                updateAllControls(); draw();
+            }
+            
+            function deselectAll() {
+                activeLayer = null; activeTextLayer = null;
+                refreshLayerUI(); refreshTextThumbs();
+                updateAllControls(); draw();
+            }
 
             function refreshLayerUI() {
                 const wrap = document.getElementById('mg-layers');
@@ -555,31 +720,11 @@
                     const div = document.createElement('div');
                     div.className = `mg-layer-thumb ${i === activeLayer ? 'active' : ''}`;
                     div.innerHTML = `<img src="${layer.img.src}" alt="Layer ${i + 1}"><span class="delete-layer">x</span>`;
-                    div.onclick = () => {
-                        activeLayer = i;
-                        document.getElementById('mg-pos-x').value = layer.x;
-                        document.getElementById('mg-pos-x-val').textContent = layer.x;
-                        document.getElementById('mg-pos-y').value = 100 - layer.y;
-                        document.getElementById('mg-pos-y-val').textContent = layer.y;
-                        document.getElementById('mg-size').value = layer.size;
-                        document.getElementById('mg-size-val').textContent = layer.size;
-                        document.getElementById('mg-rotate-icon').disabled = false;
-                        document.getElementById('mg-flip-icon').disabled = false;
-                        refreshLayerUI();
-                        draw();
-                    };
+                    div.onclick = () => selectLayer(i);
                     div.querySelector('.delete-layer').onclick = (e) => {
-                        e.stopPropagation();
-                        layers.splice(i, 1);
-                        if (activeLayer >= layers.length) activeLayer = layers.length - 1;
-                        if (layers.length === 0) {
-                            activeLayer = null;
-                            document.getElementById('mg-rotate-icon').disabled = true;
-                            document.getElementById('mg-flip-icon').disabled = true;
-                        }
-                        refreshLayerUI();
-                        draw();
-                        toast('Layer removed');
+                        e.stopPropagation(); layers.splice(i, 1);
+                        if (activeLayer === i) deselectAll(); else refreshLayerUI();
+                        draw(); toast('Layer removed');
                     };
                     wrap.appendChild(div);
                 });
@@ -591,406 +736,311 @@
                 textLayers.forEach((t, i) => {
                     const d = document.createElement('div');
                     d.className = `mg-text-thumb ${i === activeTextLayer ? 'active' : ''}`;
-                    // Show only first 5 characters, or "Text" if empty
-                    d.textContent = t.text.trim() ? t.text.trim().slice(0, 5) : 'Text';
+                    d.textContent = t.text.trim().slice(0, 8);
                     d.onclick = () => selectTextLayer(i);
                     const del = document.createElement('span');
-                    del.className = 'delete-layer';
-                    del.textContent = 'x';
-                    del.onclick = (e) => {
-                        e.stopPropagation();
-                        deleteTextLayer(i);
-                    };
+                    del.className = 'delete-layer'; del.textContent = 'x';
+                    del.onclick = (e) => { e.stopPropagation(); deleteTextLayer(i); };
                     d.appendChild(del);
                     bar.insertBefore(d, document.getElementById('mg-text-layer-add'));
                 });
                 document.getElementById('mg-text-layer-add').classList.toggle('disabled', !img);
             }
 
-            function selectTextLayer(i) {
-                activeTextLayer = i;
-                const t = textLayers[i];
-                document.getElementById('mg-text').value = t.text;
-                document.getElementById('mg-text-size').value = t.size;
-                document.getElementById('mg-text-size-val').textContent = t.size;
-                document.getElementById('mg-text-pos').value = t.y;
-                document.getElementById('mg-text-pos-val').textContent = t.y;
-                refreshTextThumbs();
-                draw();
-            }
-
-            function addTextLayer() {
-                if (!img) return toast('Upload an image first');
-                if (textLayers.length >= 10) return toast('Max 10 text layers');
-                textLayers.push({ text: '', size: 40, y: 50 });
-                activeTextLayer = textLayers.length - 1;
-                selectTextLayer(activeTextLayer);
-                toast('Text layer added');
+            function addTextLayer(isImplicit = false) {
+                if (!img || textLayers.length >= 10) return;
+                textLayers.push({ text: '', size: 40, x: 50, y: 50, color: 'white' });
+                selectTextLayer(textLayers.length - 1);
+                if (!isImplicit) toast('Text layer added');
             }
 
             function deleteTextLayer(i) {
                 textLayers.splice(i, 1);
-                activeTextLayer = textLayers.length ? Math.max(0, i - 1) : null;
-                if (activeTextLayer !== null) selectTextLayer(activeTextLayer);
-                else {
-                    document.getElementById('mg-text').value = '';
-                    document.getElementById('mg-text-size').value = 40;
-                    document.getElementById('mg-text-size-val').textContent = 40;
-                    document.getElementById('mg-text-pos').value = 50;
-                    document.getElementById('mg-text-pos-val').textContent = 50;
-                }
-                refreshTextThumbs();
-                draw();
-                toast('Text layer removed');
+                if (activeTextLayer === i) deselectAll(); else refreshTextThumbs();
+                draw(); toast('Text layer removed');
             }
 
-            function resetApp() {
-                img = null;
-                layers = [];
-                activeLayer = null;
-                textLayers = [];
-                activeTextLayer = null;
-                refreshLayerUI();
-                refreshTextThumbs();
-                document.getElementById('mg-pos-x').value = 50;
-                document.getElementById('mg-pos-x-val').textContent = 50;
-                document.getElementById('mg-pos-y').value = 50;
-                document.getElementById('mg-pos-y-val').textContent = 50;
-                document.getElementById('mg-size').value = 100;
-                document.getElementById('mg-size-val').textContent = 100;
-                document.getElementById('mg-text').value = '';
-                document.getElementById('mg-text-size').value = 40;
-                document.getElementById('mg-text-size-val').textContent = 40;
-                document.getElementById('mg-text-pos').value = 50;
-                document.getElementById('mg-text-pos-val').textContent = 50;
-                document.getElementById('mg-format').value = 'png';
-                document.getElementById('mg-confirm').checked = false;
-                document.querySelectorAll('.mg-template, .mg-template-add').forEach(t => {
-                    t.classList.add('disabled');
-                    t.classList.remove('error');
-                });
-                document.getElementById('mg-rotate-icon').disabled = true;
-                document.getElementById('mg-flip-icon').disabled = true;
-                document.getElementById('mg-text-layer-add').classList.add('disabled');
-                preview.classList.add('no-image');
-                resizeCanvasCSS(800, 600);
-                draw();
+            function getTextBounds(textLayer) {
+                const t = textLayer;
+                const fontPx = t.size * (W() / 800);
+                ctx.font = `700 ${fontPx}px 'Poppins', 'Arial Black', sans-serif`;
+                const lines = t.text.split('\n');
+                let maxWidth = 0;
+                lines.forEach(line => { if (ctx.measureText(line).width > maxWidth) maxWidth = ctx.measureText(line).width; });
+                const totalHeight = lines.length * fontPx * 1.1;
+                const cx = W() * (t.x / 100), cy = H() * (t.y / 100);
+                return { x: cx - maxWidth / 2, y: cy - totalHeight / 2, width: maxWidth, height: totalHeight, cx, cy };
             }
-
-            // live-update text
-            ['input', 'keyup', 'change'].forEach(ev => {
-                txtArea.addEventListener(ev, () => {
-                    // If no text layer exists, create one
-                    if (activeTextLayer === null) {
-                        textLayers = [{ text: '', size: 40, y: 50 }];
-                        activeTextLayer = 0;
-                    }
-                    textLayers[activeTextLayer].text = txtArea.value;
-                    refreshTextThumbs();
-                    draw();
-                });
-            });
-
-            txtSizeEl.addEventListener('input', e => {
-                if (activeTextLayer === null) return;
-                const v = +e.target.value;
-                textLayers[activeTextLayer].size = v;
-                document.getElementById('mg-text-size-val').textContent = v;
-                draw();
-            });
-
-            txtPosEl.addEventListener('input', e => {
-                if (activeTextLayer === null) return;
-                const v = +e.target.value;
-                textLayers[activeTextLayer].y = v;
-                document.getElementById('mg-text-pos-val').textContent = v;
-                draw();
-            });
-
-            document.getElementById('mg-text-layer-add').onclick = addTextLayer;
 
             function draw() {
                 ctx.clearRect(0, 0, W(), H());
-                if (img) {
-                    ctx.drawImage(img, 0, 0, W(), H());
-                }
-
-                layers.forEach(layer => {
-                    const scale = layer.size / 100;
-                    const templateWidth = layer.img.width * scale;
-                    const templateHeight = layer.img.height * scale;
-                    const templateX = W() * (layer.x / 100) - templateWidth / 2;
-                    const templateY = H() * (layer.y / 100) - templateHeight / 2;
-
+                if (img) ctx.drawImage(img, 0, 0, W(), H());
+                layers.forEach(l => {
+                    const scale = l.size / 100, w = l.img.width * scale, h = l.img.height * scale;
+                    const x = W() * (l.x / 100), y = H() * (l.y / 100);
                     ctx.save();
-                    ctx.translate(W() * (layer.x / 100), H() * (layer.y / 100));
-                    ctx.rotate((layer.rot * Math.PI) / 180);
-                    ctx.scale(layer.flip ? -1 : 1, 1);
-                    ctx.drawImage(layer.img, -templateWidth / 2, -templateHeight / 2, templateWidth, templateHeight);
+                    ctx.translate(x, y); ctx.rotate((l.rot * Math.PI) / 180); ctx.scale(l.flip ? -1 : 1, 1);
+                    ctx.drawImage(l.img, -w / 2, -h / 2, w, h);
                     ctx.restore();
                 });
-
                 textLayers.forEach(t => {
                     if (!t.text.trim()) return;
-                    const fontPx = t.size * (W() / 800); // 800 is the “baseline” canvas width
-                    ctx.font = `${fontPx}px Impact, sans-serif`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    ctx.lineWidth = fontPx * 0.08;
-                    ctx.strokeStyle = 'black';
-                    ctx.fillStyle = '#ffffff';
-                    const lineHeight = fontPx * 1.2;
-                    const startY = H() * (t.y / 100);
-                    const maxWidth = W() * 0.9; // Constrain text to 90% of canvas width
-                    t.text.split(/\r?\n/).forEach((line, i) => {
-                        const y = startY + i * lineHeight;
-                        // Wrap text if it exceeds maxWidth
-                        const words = line.split(' ');
-                        let currentLine = '';
-                        let testLine = '';
-                        for (const word of words) {
-                            testLine = currentLine ? `${currentLine} ${word}` : word;
-                            const metrics = ctx.measureText(testLine);
-                            if (metrics.width <= maxWidth) {
-                                currentLine = testLine;
-                            } else {
-                                if (currentLine) {
-                                    ctx.strokeText(currentLine, W() / 2, y);
-                                    ctx.fillText(currentLine, W() / 2, y);
-                                    i++;
-                                }
-                                currentLine = word;
-                            }
-                        }
-                        if (currentLine) {
-                            ctx.strokeText(currentLine, W() / 2, y + i * lineHeight);
-                            ctx.fillText(currentLine, W() / 2, y + i * lineHeight);
-                        }
+                    const fontPx = t.size * (W() / 800);
+                    ctx.font = `700 ${fontPx}px 'Poppins', 'Arial Black', sans-serif`;
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.lineWidth = fontPx * 0.12;
+                    ctx.fillStyle = t.color === 'white' ? '#ffffff' : '#000000';
+                    ctx.strokeStyle = t.color === 'white' ? '#000000' : '#ffffff';
+                    const lines = t.text.split('\n'), lineHeight = fontPx * 1.1;
+                    const totalHeight = lines.length * lineHeight, startY = H() * (t.y / 100) - totalHeight / 2;
+                    lines.forEach((line, i) => {
+                        const y = startY + i * lineHeight + lineHeight / 2;
+                        ctx.strokeText(line, W() * (t.x / 100), y);
+                        ctx.fillText(line, W() * (t.x / 100), y);
                     });
                 });
+                if (activeLayer !== null) {
+                    const l = layers[activeLayer], scale = l.size / 100, w = l.img.width * scale, h = l.img.height * scale;
+                    const x = W() * (l.x / 100), y = H() * (l.y / 100);
+                    ctx.save();
+                    ctx.translate(x, y); ctx.rotate((l.rot * Math.PI) / 180);
+                    ctx.strokeStyle = '#1DB954'; ctx.lineWidth = 2; ctx.strokeRect(-w/2, -h/2, w, h);
+                    ctx.fillStyle = '#1DB954';
+                    const ho = HANDLE_SIZE / 2;
+                    ctx.fillRect(-w/2-ho, -h/2-ho, HANDLE_SIZE, HANDLE_SIZE);
+                    ctx.fillRect(w/2-ho, -h/2-ho, HANDLE_SIZE, HANDLE_SIZE);
+                    ctx.fillRect(-w/2-ho, h/2-ho, HANDLE_SIZE, HANDLE_SIZE);
+                    ctx.fillRect(w/2-ho, h/2-ho, HANDLE_SIZE, HANDLE_SIZE);
+                    ctx.restore();
+                }
+                if (activeTextLayer !== null) {
+                    const bounds = getTextBounds(textLayers[activeTextLayer]);
+                    ctx.strokeStyle = '#1DB954'; ctx.lineWidth = 2;
+                    ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                    ctx.fillStyle = '#1DB954';
+                    const ho = HANDLE_SIZE / 2;
+                    ctx.fillRect(bounds.x-ho, bounds.y-ho, HANDLE_SIZE, HANDLE_SIZE);
+                    ctx.fillRect(bounds.x+bounds.width-ho, bounds.y-ho, HANDLE_SIZE, HANDLE_SIZE);
+                    ctx.fillRect(bounds.x-ho, bounds.y+bounds.height-ho, HANDLE_SIZE, HANDLE_SIZE);
+                    ctx.fillRect(bounds.x+bounds.width-ho, bounds.y+bounds.height-ho, HANDLE_SIZE, HANDLE_SIZE);
+                }
             }
 
             function handleFile(file) {
-                if (!file.type.startsWith('image/')) {
-                    console.log('Unsupported file type:', file.type);
-                    return toast('Unsupported file type');
-                }
-                if (file.size > 5 * 1024 * 1024) {
-                    console.log('File too large:', file.size);
-                    return toast('File > 5 MB');
-                }
+                if (!file || !file.type.startsWith('image/')) return toast('Unsupported file type');
+                if (file.size > 10 * 1024 * 1024) return toast('File > 10 MB');
                 const image = new Image();
                 image.onload = () => {
                     img = image;
-                    const maxSide = 1600;
-                    let { width: w, height: h } = image;
-                    if (Math.max(w, h) > maxSide) {
-                        const ratio = maxSide / Math.max(w, h);
-                        w = w * ratio; h = h * ratio;
-                    }
-                    resizeCanvasCSS(w, h);
+                    resizeCanvasCSS(img.naturalWidth, img.naturalHeight);
                     preview.classList.remove('no-image');
-                    document.querySelectorAll('.mg-template, .mg-template-add').forEach(t => t.classList.remove('disabled'));
-                    document.getElementById('mg-text-layer-add').classList.remove('disabled');
-                    if (activeTextLayer !== null) selectTextLayer(activeTextLayer); // Keep text layer active after upload
+                    document.querySelectorAll('.mg-template, .mg-template-add, .mg-template-more, #mg-text-layer-add').forEach(el => el.classList.remove('disabled'));
+                    fitCanvasToContainer();
+                    updateAllControls();
                     draw();
-                };
-                image.onerror = () => {
-                    console.error('Failed to load uploaded image');
-                    toast('Failed to load image');
                 };
                 image.src = URL.createObjectURL(file);
             }
-
-            function handleTemplateSelection(templateUrl) {
-                if (!img) return toast('Upload an image first');
+            
+            function addImageLayer(image) {
                 if (layers.length >= 10) return toast('Maximum 10 layers allowed');
-                const image = new Image();
-                image.onload = () => {
-                    layers.push({
-                        img: image,
-                        x: 50,
-                        y: 50,
-                        size: 100,
-                        rot: 0,
-                        flip: false
-                    });
-                    activeLayer = layers.length - 1;
-                    document.getElementById('mg-pos-x').value = 50;
-                    document.getElementById('mg-pos-x-val').textContent = 50;
-                    document.getElementById('mg-pos-y').value = 50;
-                    document.getElementById('mg-pos-y-val').textContent = 50;
-                    document.getElementById('mg-size').value = 100;
-                    document.getElementById('mg-size-val').textContent = 100;
-                    document.getElementById('mg-rotate-icon').disabled = false;
-                    document.getElementById('mg-flip-icon').disabled = false;
-                    refreshLayerUI();
-                    draw();
-                    toast('Layer added successfully');
-                };
-                image.onerror = () => {
-                    console.error('Failed to load template image:', templateUrl);
-                    toast('Failed to load template image');
-                };
-                image.src = templateUrl.startsWith('data:') ? templateUrl : `./${templateUrl}`;
+                layers.push({ img: image, x: 50, y: 50, size: 100, rot: 0, flip: false });
+                selectLayer(layers.length - 1);
             }
 
-            function handleCustomTemplate(file) {
-                if (!img) return toast('Upload an image first');
-                if (!file) return toast('No file selected');
-                if (file.type !== 'image/png') return toast('Only PNG files allowed');
-                if (file.size > 5 * 1024 * 1024) return toast('File > 5 MB');
-                if (layers.length >= 10) return toast('Maximum 10 layers allowed');
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const image = new Image();
-                    image.onload = () => {
-                        layers.push({
-                            img: image,
-                            x: 50,
-                            y: 50,
-                            size: 100,
-                            rot: 0,
-                            flip: false
-                        });
-                        activeLayer = layers.length - 1;
-                        document.getElementById('mg-pos-x').value = 50;
-                        document.getElementById('mg-pos-x-val').textContent = 50;
-                        document.getElementById('mg-pos-y').value = 50;
-                        document.getElementById('mg-pos-y-val').textContent = 50;
-                        document.getElementById('mg-size').value = 100;
-                        document.getElementById('mg-size-val').textContent = 100;
-                        document.getElementById('mg-rotate-icon').disabled = false;
-                        document.getElementById('mg-flip-icon').disabled = false;
-                        refreshLayerUI();
-                        draw();
-                        toast('Layer added successfully');
-                    };
-                    image.onerror = () => {
-                        console.error('Failed to load custom PNG');
-                        toast('Failed to load custom PNG');
-                        templateAddButton.classList.add('error');
-                    };
-                    image.src = reader.result;
-                };
-                reader.onerror = () => {
-                    console.error('Failed to read custom PNG');
-                    toast('Failed to read custom PNG');
-                    templateAddButton.classList.add('error');
-                };
-                reader.readAsDataURL(file);
+            function getCanvasPoint(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: (clientX - rect.left) / rect.width * W(), y: (clientY - rect.top) / rect.height * H() };
             }
 
-            canvas.addEventListener('click', () => {
-                if (!img) fileInput.click();
-            });
-            fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
-            ['dragenter', 'dragover'].forEach(ev => canvas.addEventListener(ev, e => {
-                if (!img) {
-                    e.preventDefault();
-                    preview.classList.add('dragover');
+            function getHandleAtPoint(point, bounds, rotation = 0) {
+                const cx = bounds.cx ?? bounds.x + bounds.width/2, cy = bounds.cy ?? bounds.y + bounds.height/2;
+                const handleRadius = HANDLE_SIZE;
+                const handles = {
+                    tl: {x: -bounds.width/2, y: -bounds.height/2}, tr: {x: bounds.width/2, y: -bounds.height/2},
+                    bl: {x: -bounds.width/2, y: bounds.height/2}, br: {x: bounds.width/2, y: bounds.height/2}
+                };
+                for (const name in handles) {
+                    const handle = handles[name], angle = rotation * Math.PI / 180;
+                    const rX = handle.x * Math.cos(angle) - handle.y * Math.sin(angle);
+                    const rY = handle.x * Math.sin(angle) + handle.y * Math.cos(angle);
+                    if (Math.hypot(point.x - (cx + rX), point.y - (cy + rY)) < handleRadius) return name;
                 }
-            }));
-            ['dragleave', 'drop'].forEach(ev => canvas.addEventListener(ev, e => {
-                if (!img) {
-                    e.preventDefault();
-                    preview.classList.remove('dragover');
-                }
-            }));
-            canvas.addEventListener('drop', e => {
-                if (!img) handleFile(e.dataTransfer.files[0]);
-            });
+                return null;
+            }
 
-            document.querySelectorAll('.mg-template').forEach(template => {
-                template.addEventListener('click', () => {
-                    if (!img) {
-                        toast('Upload an image first');
+            function handleInteractionStart(e) {
+                if (!img) return;
+                e.preventDefault();
+                const point = getCanvasPoint(e);
+                interaction.startX = point.x; interaction.startY = point.y;
+                if (activeLayer !== null) {
+                    const l = layers[activeLayer];
+                    const bounds = { width: l.img.width * (l.size/100), height: l.img.height * (l.size/100), cx: W() * (l.x/100), cy: H() * (l.y/100) };
+                    const handle = getHandleAtPoint(point, bounds, l.rot);
+                    if (handle) {
+                        interaction = { active: true, type: 'resizeLayer', index: activeLayer, handle, startX: point.x, startY: point.y, initialState: JSON.parse(JSON.stringify(l)) };
                         return;
                     }
-                    const templateUrl = template.dataset.template;
-                    handleTemplateSelection(templateUrl);
-                });
-                const img = template.querySelector('img');
-                img.onerror = () => {
-                    console.error('Failed to load thumbnail:', img.src);
-                    template.classList.add('error');
-                    toast(`Failed to load thumbnail for ${template.dataset.template}`);
-                };
-            });
-
-            templateAddButton.addEventListener('click', () => {
-                if (!img) toast('Upload an image first');
-            });
-            templateFileInput.addEventListener('change', e => {
-                const file = e.target.files[0];
-                handleCustomTemplate(file);
-                e.target.value = '';
-            });
-
-            document.getElementById('mg-reset').addEventListener('click', () => {
-                if (confirm('Are you sure you want to restart your masterpiece?')) {
-                    resetApp();
                 }
-            });
+                if (activeTextLayer !== null) {
+                    const t = textLayers[activeTextLayer];
+                    const bounds = getTextBounds(t);
+                    const handle = getHandleAtPoint(point, bounds);
+                    if (handle) {
+                        interaction = { active: true, type: 'resizeText', index: activeTextLayer, handle, startX: point.x, startY: point.y, initialState: JSON.parse(JSON.stringify(t)) };
+                        return;
+                    }
+                }
+                for (let i = layers.length - 1; i >= 0; i--) {
+                    const l = layers[i], dx = point.x - W()*(l.x/100), dy = point.y - H()*(l.y/100);
+                    const angle = -l.rot * Math.PI / 180;
+                    const localX = dx * Math.cos(angle) - dy * Math.sin(angle);
+                    const localY = dx * Math.sin(angle) + dy * Math.cos(angle);
+                    const w = l.img.width*(l.size/100), h = l.img.height*(l.size/100);
+                    if (Math.abs(localX) < w/2 && Math.abs(localY) < h/2) {
+                        selectLayer(i);
+                        interaction = { active: true, type: 'dragLayer', index: i, startX: point.x, startY: point.y, initialState: JSON.parse(JSON.stringify(l)) };
+                        return;
+                    }
+                }
+                for (let i = textLayers.length - 1; i >= 0; i--) {
+                    const bounds = getTextBounds(textLayers[i]);
+                    if (point.x > bounds.x && point.x < bounds.x+bounds.width && point.y > bounds.y && point.y < bounds.y+bounds.height) {
+                        selectTextLayer(i);
+                        interaction = { active: true, type: 'dragText', index: i, startX: point.x, startY: point.y, initialState: JSON.parse(JSON.stringify(textLayers[i])) };
+                        return;
+                    }
+                }
+                deselectAll();
+            }
 
-            ['mg-pos-x', 'mg-pos-y', 'mg-size'].forEach(id => {
-                const inpt = document.getElementById(id);
-                inpt.addEventListener('input', () => {
-                    if (activeLayer === null) return;
-                    const layer = layers[activeLayer];
-                    if (id === 'mg-pos-x') {
-                        layer.x = +inpt.value;
-                        document.getElementById('mg-pos-x-val').textContent = inpt.value;
+            function handleInteractionMove(e) {
+                if (!interaction.active) return;
+                e.preventDefault();
+                const point = getCanvasPoint(e);
+                const dx = point.x - interaction.startX, dy = point.y - interaction.startY;
+                const iState = interaction.initialState;
+                const layer = (interaction.type.includes('Layer')) ? layers[interaction.index] : textLayers[interaction.index];
+                if (interaction.type.startsWith('drag')) {
+                    layer.x = iState.x + (dx / W()) * 100;
+                    layer.y = iState.y + (dy / H()) * 100;
+                } else if (interaction.type.startsWith('resize')) {
+                    const cx = W() * (iState.x / 100), cy = H() * (iState.y / 100);
+                    const initialDist = Math.hypot(interaction.startX - cx, interaction.startY - cy);
+                    const currentDist = Math.hypot(point.x - cx, point.y - cy);
+                    if (initialDist > 1) layer.size = iState.size * (currentDist / initialDist);
+                }
+                updateAllControls(); draw();
+            }
+            
+            function handleInteractionEnd() { interaction.active = false; }
+
+            function openTemplateOverlay() {
+                templateOverlay.classList.add('visible');
+            }
+            function closeTemplateOverlay() {
+                templateOverlay.classList.remove('visible');
+            }
+
+            function handleTemplateClick(e) {
+                if (!img) return toast('Upload an image first');
+                const templateSrc = e.currentTarget.dataset.template;
+                if (!templateSrc) return;
+                
+                const image = new Image();
+                image.onload = () => {
+                    addImageLayer(image);
+                    closeTemplateOverlay();
+                };
+                image.src = `./${templateSrc}`;
+            }
+
+            function setupListeners() {
+                canvas.addEventListener('click', () => { if (!img && !interaction.active) fileInput.click(); });
+                fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+                ['dragenter', 'dragover', 'drop'].forEach(ev => canvas.addEventListener(ev, e => {
+                    e.preventDefault(); if (!img && ev === 'drop') handleFile(e.dataTransfer.files[0]);
+                }));
+                
+                document.querySelectorAll('.mg-template').forEach(t => t.addEventListener('click', handleTemplateClick));
+
+                moreTemplatesBtn.addEventListener('click', openTemplateOverlay);
+                closeOverlayBtn.addEventListener('click', closeTemplateOverlay);
+                templateOverlay.addEventListener('click', (e) => {
+                    if (e.target === templateOverlay) { 
+                        closeTemplateOverlay();
                     }
-                    if (id === 'mg-pos-y') {
-                        layer.y = 100 - inpt.value;
-                        document.getElementById('mg-pos-y-val').textContent = layer.y;
-                    }
-                    if (id === 'mg-size') {
-                        layer.size = +inpt.value;
-                        document.getElementById('mg-size-val').textContent = inpt.value;
-                    }
-                    draw();
                 });
-            });
 
-            document.getElementById('mg-rotate-icon').addEventListener('click', () => {
-                if (activeLayer === null) return toast('Select a layer first');
-                layers[activeLayer].rot = (layers[activeLayer].rot + 90) % 360;
-                draw();
-            });
+                document.getElementById('mg-template-file').addEventListener('change', e => {
+                    if (!img) return toast('Upload an image first');
+                    const file = e.target.files[0];
+                    if (!file || file.type !== 'image/png' || file.size > 5 * 1024 * 1024) return toast('Invalid PNG file');
+                    const reader = new FileReader();
+                    reader.onload = () => { const image = new Image(); image.onload = () => addImageLayer(image); image.src = reader.result; };
+                    reader.readAsDataURL(file);
+                });
+                document.getElementById('mg-text-layer-add').onclick = () => addTextLayer(false);
+                ['mg-pos-x','mg-pos-y','mg-size'].forEach(id => document.getElementById(id).addEventListener('input', (e) => {
+                    if(activeLayer === null) return;
+                    const l = layers[activeLayer];
+                    if(id === 'mg-pos-x') l.x = +e.target.value;
+                    if(id === 'mg-pos-y') l.y = 100 - e.target.value;
+                    if(id === 'mg-size') l.size = +e.target.value;
+                    updateImageControls(); draw();
+                }));
+                document.getElementById('mg-rotate-icon').addEventListener('click', () => { if (activeLayer !== null) { layers[activeLayer].rot = (layers[activeLayer].rot + 90) % 360; draw(); }});
+                document.getElementById('mg-flip-icon').addEventListener('click', () => { if (activeLayer !== null) { layers[activeLayer].flip = !layers[activeLayer].flip; draw(); }});
+                txtArea.addEventListener('input', e => {
+                    if (img && activeTextLayer === null) addTextLayer(true);
+                    if (activeTextLayer !== null) {
+                        textLayers[activeTextLayer].text = e.target.value; 
+                        refreshTextThumbs(); draw();
+                    }
+                });
+                txtSizeEl.addEventListener('input', e => { if (activeTextLayer !== null) { textLayers[activeTextLayer].size = +e.target.value; updateTextControls(); draw(); }});
+                txtPosXEl.addEventListener('input', e => { if (activeTextLayer !== null) { textLayers[activeTextLayer].x = +e.target.value; updateTextControls(); draw(); }});
+                txtPosYEl.addEventListener('input', e => { if (activeTextLayer !== null) { textLayers[activeTextLayer].y = +e.target.value; updateTextControls(); draw(); }});
+                textColorToggle.addEventListener('click', () => { if(activeTextLayer !== null) { const t = textLayers[activeTextLayer]; t.color = t.color === 'white' ? 'black' : 'white'; draw(); }});
+                document.getElementById('mg-reset').addEventListener('click', () => { if (confirm('Are you sure?')) resetApp(); });
+                document.getElementById('mg-download').addEventListener('click', () => {
+                    if (!img) return toast('Upload an image first');
+                    deselectAll();
+                    const link = document.createElement('a');
+                    link.download = `adhd-meme.png`;
+                    link.href = canvas.toDataURL('image/png', 0.95);
+                    link.click();
+                });
+                document.getElementById('mg-share').addEventListener('click', () => {
+                    if (!img) return toast('Upload an image first');
+                    const memeLink = '[replace this with the image from your downloads, you wonderful, hyper-active degen]';
+                    const tweet = `Got distracted & made this!\n\nCheck out: ${memeLink} \n\nhttps://adhdegens.fun/ $ADHD`;
+                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
+                });
+                canvas.addEventListener('mousedown', handleInteractionStart);
+                canvas.addEventListener('mousemove', handleInteractionMove);
+                window.addEventListener('mouseup', handleInteractionEnd);
+                canvas.addEventListener('mouseleave', handleInteractionEnd);
+                canvas.addEventListener('touchstart', handleInteractionStart, { passive: false });
+                canvas.addEventListener('touchmove', handleInteractionMove, { passive: false });
+                window.addEventListener('touchend', handleInteractionEnd);
+                window.addEventListener('resize', fitCanvasToContainer);
+            }
 
-            document.getElementById('mg-flip-icon').addEventListener('click', () => {
-                if (activeLayer === null) return toast('Select a layer first');
-                layers[activeLayer].flip = !layers[activeLayer].flip;
-                draw();
-            });
+            function resetApp() {
+                img = null; layers = []; activeLayer = null; textLayers = []; activeTextLayer = null;
+                preview.classList.add('no-image');
+                canvas.style.width = ''; canvas.style.height = '';
+                document.querySelectorAll('.mg-template, .mg-template-add, .mg-template-more, #mg-text-layer-add').forEach(el => el.classList.add('disabled'));
+                refreshLayerUI(); refreshTextThumbs(); updateAllControls();
+                resizeCanvasCSS(800, 600); draw();
+            }
 
-            document.getElementById('mg-download').addEventListener('click', () => {
-                if (!img) return toast('Upload an image first');
-                if (!document.getElementById('mg-confirm').checked) return toast('Confirm image rights');
-                const fmt = document.getElementById('mg-format').value;
-                const link = document.createElement('a');
-                link.download = `adhd-meme.${fmt}`;
-                link.href = canvas.toDataURL(`image/${fmt}`);
-                link.click();
-            });
-
-            document.getElementById('mg-share').addEventListener('click', () => {
-                if (!img) return toast('Upload an image first');
-                if (!document.getElementById('mg-confirm').checked) return toast('Confirm image rights');
-                const memeLink = '[replace this with the image from your downloads, you wonderful, hyper-active degen]';
-                const tweet = `Got distracted & made this!\n\nCheck out: ${memeLink} \n\nhttps://adhdegens.fun/ $ADHD`;
-                const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`;
-                window.open(intent, '_blank');
-            });
-
-            document.querySelectorAll('.mg-template, .mg-template-add').forEach(t => t.classList.add('disabled'));
-            document.getElementById('mg-rotate-icon').disabled = true;
-            document.getElementById('mg-flip-icon').disabled = true;
-            document.getElementById('mg-text-layer-add').classList.add('disabled');
-
-            resetApp(); // Initialize with no image
+            setupListeners();
+            resetApp();
         })();
     </script>
 </body>
