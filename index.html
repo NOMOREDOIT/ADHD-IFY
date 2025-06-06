@@ -5,32 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ADHD-ifier</title>
     <link rel="icon" type="image/png" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 90's Warm Beige Vibe - Final Version --- */
-
-        :root {
-            --win-beige: #d4d0c8;
-            --win-light: #ffffff;
-            --win-shadow: #808080;
-            --win-accent: #1e1e1e; /* Replaced blue with a warm, deep maroon */
-            --win-teal: #ffe1a0;
-            --font-stack: Tahoma, "MS Sans Serif", "Geneva", sans-serif;
-        }
-
         html {
-            background: var(--win-teal);
+            scroll-behavior: smooth;
+            background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
             overscroll-behavior: none;
             margin: 0;
             padding: 0;
+            -webkit-overflow-scrolling: touch;
             -webkit-tap-highlight-color: transparent;
         }
-
         body {
             margin: 0;
             padding: .5rem;
-            font-family: var(--font-stack);
-            background: var(--win-teal);
-            color: #000;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+            color: #fff;
             text-align: center;
             min-height: 100vh;
             overflow-x: hidden;
@@ -38,53 +29,41 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            image-rendering: pixelated;
         }
         * {
             box-sizing: border-box;
         }
-        
         #adhd-meme-generator {
-            --green: var(--win-accent);
-            --dark: #000;
-            --light: var(--win-light);
-            font-family: var(--font-stack);
-            color: var(--dark);
-            background: var(--win-beige);
-            padding: 2px;
+            --green: #1DB954;
+            --dark: #111;
+            --light: #fafafa;
+            font-family: "Poppins", sans-serif;
+            color: var(--light);
+            background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+            padding: 1rem .5rem;
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
             gap: .5rem;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
         }
         #adhd-meme-generator h2 {
-            font-size: 1rem;
-            margin: 0;
-            padding: 4px 8px;
-            background: var(--win-accent);
-            color: var(--win-light);
-            text-align: left;
-            font-weight: bold;
+            font-size: 1.8rem;
+            margin: 0 0 .2rem;
+            text-shadow: 0 0 4px rgba(255, 255, 255, .4);
         }
         #adhd-meme-generator h3 {
-            font-size: .85rem;
+            font-size: 1rem;
             margin: .5rem 0 .3rem;
-            font-weight: normal;
-            text-align: left;
+            opacity: .9;
+            font-weight: 500;
         }
         #adhd-meme-generator p.tagline {
-            font-size: .8rem;
-            margin: .5rem;
-            font-weight: normal;
-            text-align: left;
+            font-size: .9rem;
+            margin: 0 0 .5rem;
+            font-weight: 500;
+            opacity: .9;
         }
         .mg-preview {
             width: 100%;
@@ -94,40 +73,32 @@
             justify-content: center;
             align-items: center;
             touch-action: none;
-            background: var(--win-beige);
-            padding: 10px;
         }
         .mg-preview canvas {
             width: 100%;
             height: auto;
+            border: 1px solid #444;
+            border-radius: 8px;
             display: block;
             margin: 0 auto;
-            background: #000;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
         }
         .mg-preview.no-image canvas {
-            border: 2px dashed #808080;
+            border: 2px dashed #333;
             cursor: pointer;
             width: 100%;
             aspect-ratio: 4/3;
-            background: var(--win-beige);
         }
         .mg-preview.no-image canvas:hover {
-            border-color: #000;
+            border-color: var(--green);
         }
         .mg-preview.no-image::after {
-            content: "Click to select an image file...";
+            content: "Click or drag image here";
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: .85rem;
-            color: #000;
+            color: #888;
             pointer-events: none;
         }
         .mg-controls {
@@ -137,60 +108,30 @@
             width: 100%;
         }
         .mg-controls fieldset {
-            background: var(--win-beige);
-            border: 1px solid var(--win-shadow);
-            border-top: 1px solid var(--win-light);
-            border-left: 1px solid var(--win-light);
-            padding: 1rem .8rem;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid var(--green);
+            border-radius: 8px;
+            padding: .8rem .6rem;
+            backdrop-filter: blur(4px);
             margin: 0;
         }
         .mg-controls legend {
             font-size: .85rem;
-            font-weight: normal;
-            margin-left: .5rem;
-            padding: 0 .3rem;
-            background: var(--win-beige);
+            font-weight: 600;
+            margin-bottom: .3rem;
         }
-        .mg-controls input[type="file"] { display: none; }
-
+        .mg-controls input[type="file"] {
+            display: none;
+        }
         .mg-slider {
             display: flex;
             align-items: center;
-            gap: .5rem;
+            gap: .3rem;
             margin: .3rem 0;
         }
-        .mg-slider input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 18px;
-            background: transparent;
-        }
-        .mg-slider input[type="range"]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: var(--win-beige);
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
-        }
-        .mg-slider input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 18px;
-            width: 10px;
-            background: var(--win-beige);
-            cursor: pointer;
-            margin-top: -9px;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
+        .mg-slider input {
+            flex: 1;
+            height: 1rem;
         }
         .mg-slider span {
             font-size: .75rem;
@@ -203,6 +144,7 @@
             width: 32px;
             text-align: left;
             min-width: 32px;
+            opacity: .8;
         }
         .mg-row {
             display: flex;
@@ -214,176 +156,139 @@
         textarea#mg-text {
             width: 100%;
             resize: vertical;
+            border-radius: 4px;
             padding: .3rem;
-            background: var(--win-light);
-            color: var(--dark);
-            font-family: var(--font-stack);
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid #333;
+            color: #fafafa;
+            font-family: 'Poppins', sans-serif;
             font-size: .8rem;
-            min-height: 2.5rem;
-            max-height: 5rem;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
+            min-height: 2rem;
+            max-height: 4rem;
         }
         .mg-template-container {
             display: flex;
-            gap: .4rem;
+            gap: .3rem;
             justify-content: center;
             flex-wrap: wrap;
         }
         .mg-template, .mg-template-add, .mg-template-more {
             width: 80px;
             height: 80px;
-            background: var(--win-beige);
+            background: rgba(255, 255, 255, .1);
+            border: 2px solid #444;
+            border-radius: 6px;
             cursor: pointer;
+            transition: border-color .2s, transform .2s;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--dark);
+            color: var(--light);
             line-height: 1;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
         }
         .mg-template img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
+            object-fit: cover;
         }
-        .mg-template:active, .mg-template-add:active, .mg-template-more:active {
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
+        .mg-template:hover, .mg-template-add:hover, .mg-template-more:hover {
+            border-color: var(--green);
+            transform: scale(1.05);
         }
         .mg-template.disabled, .mg-template-add.disabled, .mg-template-more.disabled {
-            opacity: .6;
+            opacity: .4;
             pointer-events: none;
-            color: #808080;
-            border-color: #808080;
         }
+        
+        /* --- NEW: Specific styling for SVG icons in buttons --- */
         .mg-template-add svg,
         .mg-template-more svg {
             width: 36px;
             height: 36px;
-            fill: #000;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .mg-template-add:hover svg,
+        .mg-template-more:hover svg {
             opacity: 1;
         }
-        
+
         .mg-text-layer-add {
             width: 80px;
             height: 32px;
-            background: var(--win-beige);
+            background: rgba(255, 255, 255, .1);
+            border: 2px solid #444;
+            border-radius: 6px;
             cursor: pointer;
+            transition: border-color .2s, transform .2s;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            color: var(--dark);
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
+            font-size: 1.5rem; /* Larger '+' sign */
+            color: var(--light);
         }
-        .mg-text-layer-add:active {
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
+        .mg-text-layer-add:hover {
+            border-color: var(--green);
+            transform: scale(1.05);
         }
         .mg-text-layer-add.disabled {
-            opacity: .6; pointer-events: none; color: #808080; border-color: #808080;
+            opacity: .4;
+            pointer-events: none;
         }
         .mg-actions {
             display: flex;
             justify-content: center;
             gap: .5rem;
             margin-top: .75rem;
-            padding-bottom: .5rem;
         }
         .mg-btn {
-            padding: .3rem 1.2rem;
-            background: var(--win-beige);
+            padding: .5rem 1rem;
+            border-radius: 20px;
+            border: none;
+            background: var(--green);
             color: #000;
-            font-family: var(--font-stack);
+            font-family: 'Poppins', sans-serif;
             font-size: .85rem;
-            font-weight: normal;
+            font-weight: 600;
             cursor: pointer;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
+            transition: transform .2s, background .2s;
         }
-        .mg-btn:active {
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
-            padding: .4rem 1.1rem .2rem 1.3rem;
-        }
-
         .mg-icon-btn {
             width: 28px;
             height: 28px;
-            background: var(--win-beige);
-            color: var(--dark);
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, .1);
+            color: var(--light);
             font-size: 1rem;
-            line-height: 24px;
+            line-height: 28px;
             text-align: center;
             cursor: pointer;
+            transition: background .2s, transform .2s;
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
         }
-        .mg-icon-btn:active {
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
-        }
-
         .color-swatch {
             display: inline-block;
             width: 14px;
             height: 14px;
-            border: 1px solid #000;
+            border: 1px solid #888;
+            border-radius: 3px;
             background: linear-gradient(45deg, #000 0%, #000 50%, #fff 50%, #fff 100%);
         }
         .mg-layer-thumb {
             width: 40px;
             height: 40px;
+            border: 2px solid #444;
+            border-radius: 6px;
             overflow: hidden;
             cursor: pointer;
+            transition: border-color .2s, opacity .2s, transform .2s;
+            opacity: .7;
             position: relative;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
         }
         .mg-layer-thumb img {
             width: 100%;
@@ -391,60 +296,78 @@
             object-fit: cover;
         }
         .mg-layer-thumb.active {
-            border: 2px solid var(--win-accent);
+            border-color: var(--green);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        .mg-layer-thumb:hover {
+            border-color: var(--green);
+            opacity: 1;
         }
         .mg-layer-thumb .delete-layer {
             position: absolute;
-            top: 0; right: 0;
-            color: #fff;
-            background: #f00;
+            top: 0;
+            right: 0;
+            color: #ff4040;
             font-size: .8rem;
             line-height: 1;
-            padding: 1px 3px;
+            padding: 2px 4px;
             cursor: pointer;
-            border: 1px outset #fff;
+            background: rgba(0, 0, 0, .5);
+            border-radius: 0 0 0 4px;
+        }
+        .mg-layer-thumb .delete-layer:hover {
+            background: rgba(255, 64, 64, .5);
         }
         .mg-text-thumb {
             position: relative;
-            width: 80px; height: 32px;
-            background: var(--win-beige);
-            display: flex; align-items: center; justify-content: center;
+            width: 80px;
+            height: 32px;
+            background: rgba(255, 255, 255, .1);
+            border: 2px solid #444;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: .7rem;
             cursor: pointer;
+            opacity: .7;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             padding: 0 16px 0 4px;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
         }
         .mg-text-thumb.active {
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
+            border-color: var(--green);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        .mg-text-thumb:hover {
+            border-color: var(--green);
+            opacity: 1;
         }
         .mg-text-thumb .delete-layer {
-            position: absolute; top: 1px; right: 1px;
+            position: absolute;
+            top: 1px;
+            right: 1px;
             padding: 2px 4px;
             font-size: .7rem;
-            background: var(--win-beige); color: #f00;
-            cursor: pointer; border: 1px solid #000;
+            background: rgba(0, 0, 0, .5);
+            color: #ff4040;
+            cursor: pointer;
+            border-radius: 4px;
         }
-        
+        .mg-text-thumb .delete-layer:hover {
+            background: rgba(255, 64, 64, .5);
+        }
         .mg-editor-layout {
             display: flex;
             flex-direction: column; 
             gap: .75rem;
             width: 100%;
-            padding: .5rem;
         }
         @media (max-width: 899px) {
-            #adhd-meme-generator { padding: 2px; }
+            #adhd-meme-generator { padding: .5rem; }
             .mg-controls {
                 grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             }
@@ -456,7 +379,9 @@
                 align-items: flex-start;
                 gap: 1.5rem;
             }
-            .mg-controls-wrapper { grid-column: 1 / 2; }
+            .mg-controls-wrapper {
+                grid-column: 1 / 2;
+            }
             .mg-preview-wrapper {
                 grid-column: 2 / 3;
                 position: sticky;
@@ -465,120 +390,110 @@
         }
         #mg-toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--win-beige);
+            background: rgba(0, 0, 0, .8);
             padding: .4rem .8rem;
-            color: #000;
+            border-radius: 6px;
+            color: #fff;
             font-size: .8rem;
             opacity: 0;
             pointer-events: none;
             transition: opacity .35s;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
         }
         .mg-layers {
             display: flex;
-            gap: .3rem; flex-wrap: wrap;
-            margin: .5rem 0 .3rem; justify-content: center;
-            padding: .5rem;
-            background: #b9b4a4; /* Slightly darker well */
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
+            gap: .3rem;
+            flex-wrap: wrap;
+            margin: .5rem 0 .3rem;
+            justify-content: center;
         }
         #mg-template-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(5px);
             z-index: 1000;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: opacity 0.1s, visibility 0s 0.1s;
+            transition: opacity 0.3s, visibility 0s 0.3s;
         }
         #mg-template-overlay.visible {
-            opacity: 1; visibility: visible; pointer-events: auto;
-            transition: opacity 0.1s, visibility 0s 0s;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.3s, visibility 0s 0s;
         }
         #mg-template-grid-wrapper {
-            background: var(--win-beige);
-            padding: 2px;
+            background: linear-gradient(135deg, #1f1f1f 0%, #161616 100%);
+            border: 1px solid var(--green);
+            padding: 2rem 1.5rem 1.5rem;
+            border-radius: 12px;
             position: relative;
             max-width: min(90vw, 420px);
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        #mg-template-overlay.visible #mg-template-grid-wrapper {
+            transform: scale(1);
         }
         #mg-template-grid-wrapper h4 {
-            margin: 0;
-            padding: 4px;
-            text-align: left;
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--win-light);
-            background: var(--win-accent);
+            margin: -0.5rem 0 1rem;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #eee;
         }
         #mg-template-overlay-close {
             position: absolute;
-            top: 3px;
-            right: 4px;
-            background: var(--win-beige);
-            color: #000;
-            font-size: 1.2rem;
-            font-weight: bold;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 2rem;
             line-height: 1;
             cursor: pointer;
-            padding: 0 4px;
-            height: 22px;
-            border-style: solid;
-            border-width: 2px;
-            border-top-color: var(--win-light);
-            border-left-color: var(--win-light);
-            border-bottom-color: var(--win-shadow);
-            border-right-color: var(--win-shadow);
+            padding: 5px;
+            transition: color 0.2s, transform 0.2s;
         }
-        #mg-template-overlay-close:active {
-            border-top-color: var(--win-shadow);
-            border-left-color: var(--win-shadow);
-            border-bottom-color: var(--win-light);
-            border-right-color: var(--win-light);
+        #mg-template-overlay-close:hover {
+            color: #fff;
+            transform: scale(1.1);
         }
-        
         #mg-template-grid {
             display: grid;
             grid-template-columns: repeat(4, 80px);
             gap: 0.5rem;
             justify-content: center;
-            padding: 1rem;
         }
         @media (max-width: 480px) {
-             #mg-template-grid { grid-template-columns: repeat(3, 80px); }
+             #mg-template-grid {
+                grid-template-columns: repeat(3, 80px);
+             }
         }
     </style>
 </head>
 <body>
     <section id="adhd-meme-generator" class="adhd-meme-generator">
-        <h2>ADHD-ifier</h2>
+        <h2>$ADHD-ifier</h2>
+        <p class="tagline">Upload → add character → adjust → add text → download/share</p>
+        
         <div class="mg-editor-layout">
             
             <div class="mg-controls-wrapper">
                 <div class="mg-controls">
                     <fieldset>
-                        <legend>Layers</legend>
+                        <legend>1 · Template</legend>
                         <div id="mg-layers" class="mg-layers"></div>
                         <h3>Add Layer</h3>
                         <div class="mg-template-container">
@@ -586,11 +501,13 @@
                             <div class="mg-template disabled" data-template="2.png"><img src="./2.png" alt="Template 2"></div>
                             <div class="mg-template disabled" data-template="3.png"><img src="./3.png" alt="Template 3"></div>
                             <div class="mg-template disabled" data-template="4.png"><img src="./4.png" alt="Template 4"></div>
+                            <!-- MODIFIED: "More" button with a clear grid icon -->
                             <div class="mg-template-more disabled" id="mg-template-more" title="More templates">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M10 3H4C3.44772 3 3 3.44772 3 4V10C3 10.5523 3.44772 11 4 11H10C10.5523 11 11 10.5523 11 10V4C11 3.44772 10.5523 3 10 3ZM8.5 8.5H5.5V5.5H8.5V8.5Z M10 13H4C3.44772 13 3 13.4477 3 14V20C3 20.5523 3.44772 21 4 21H10C10.5523 21 11 20.5523 11 20V14C11 13.4477 10.5523 13 10 13ZM8.5 18.5H5.5V15.5H8.5V18.5Z M20 3H14C13.4477 3 13 3.44772 13 4V10C13 10.5523 13.4477 11 14 11H20C20.5523 11 21 10.5523 21 10V4C21 3.44772 20.5523 3 20 3ZM18.5 8.5H15.5V5.5H18.5V8.5Z M20 13H14C13.4477 13 13 13.4477 13 14V20C13 20.5523 13.4477 21 14 21H20C20.5523 21 21 20.5523 21 20V14C21 13.4477 20.5523 13 20 13ZM18.5 18.5H15.5V15.5H18.5V18.5Z"></path>
                                 </svg>
                             </div>
+                            <!-- MODIFIED: "Upload" button with a clear upload icon -->
                             <label class="mg-template-add disabled" id="mg-template-add" title="Add Custom PNG">
                                 <input type="file" id="mg-template-file" accept="image/png"/>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -601,7 +518,7 @@
                     </fieldset>
 
                     <fieldset>
-                        <legend>Transform</legend>
+                        <legend>2 · Size/Position</legend>
                         <div class="mg-slider"><span class="mg-slider-label">X</span><input type="range" id="mg-pos-x" min="0" max="100" value="50" disabled/><span id="mg-pos-x-val">50</span></div>
                         <div class="mg-slider"><span class="mg-slider-label">Y</span><input type="range" id="mg-pos-y" min="0" max="100" value="50" style="transform: scaleY(-1);" disabled/><span id="mg-pos-y-val">50</span></div>
                         <div class="mg-slider"><span class="mg-slider-label">Size</span><input type="range" id="mg-size" min="10" max="200" value="100" disabled/><span id="mg-size-val">100</span></div>
@@ -612,11 +529,11 @@
                     </fieldset>
 
                     <fieldset>
-                        <legend>Text</legend>
+                        <legend>3 · Text</legend>
                         <div id="mg-text-layer-bar" class="mg-template-container" style="margin-bottom:.5rem">
                             <div id="mg-text-layer-add" class="mg-text-layer-add disabled" title="Add text layer"><span>+</span></div>
                         </div>
-                        <textarea id="mg-text" rows="2" placeholder="Enter meme text here..." disabled></textarea>
+                        <textarea id="mg-text" rows="2" placeholder="Meme text" disabled></textarea>
                         <div class="mg-slider">
                             <span class="mg-slider-label">Size</span>
                             <input type="range" id="mg-text-size" min="10" max="150" value="40" disabled/>
@@ -637,15 +554,9 @@
                         </div>
                     </fieldset>
                 </div>
-                 <div class="mg-actions">
-                    <button class="mg-btn" id="mg-reset">Reset</button>
-                    <button class="mg-btn" id="mg-download">Save...</button>
-                    <button class="mg-btn" id="mg-share">Share on X</button>
-                </div>
             </div>
             
             <div class="mg-preview-wrapper">
-                <p class="tagline">Click the box below to add a background image.</p>
                 <div class="mg-preview no-image">
                     <canvas id="mg-canvas" width="800" height="600"></canvas>
                     <input type="file" id="mg-file" accept="image/*" style="display:none"/>
@@ -654,14 +565,19 @@
 
         </div>
 
+        <div class="mg-actions">
+            <button class="mg-btn" id="mg-reset">Reset</button>
+            <button class="mg-btn" id="mg-download">Download</button>
+            <button class="mg-btn" id="mg-share">Share on X</button>
+        </div>
     </section>
 
     <div id="mg-toast"></div>
 
     <div id="mg-template-overlay">
         <div id="mg-template-grid-wrapper">
-            <h4>Choose a template</h4>
             <button id="mg-template-overlay-close">×</button>
+            <h4>Choose a template</h4>
             <div id="mg-template-grid">
                 <div class="mg-template" data-template="1.png"><img src="./1.png" alt="Template 1"></div>
                 <div class="mg-template" data-template="2.png"><img src="./2.png" alt="Template 2"></div>
@@ -708,7 +624,7 @@
             function resizeCanvasCSS(w, h) {
                 canvas.width = w * DPR; canvas.height = h * DPR;
                 ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.scale(DPR, DPR);
-                ctx.imageSmoothingEnabled = false;
+                ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
             }
             const W = () => canvas.width / DPR;
             const H = () => canvas.height / DPR;
@@ -721,7 +637,7 @@
             function fitCanvasToContainer() {
                 if (!img) return;
                 canvas.style.width = ''; canvas.style.height = '';
-                const containerWidth = previewWrapper.clientWidth - 20;
+                const containerWidth = previewWrapper.clientWidth;
                 const containerHeight = window.innerHeight * 0.85; 
                 const imgAspectRatio = img.naturalWidth / img.naturalHeight;
                 const containerAspectRatio = containerWidth / containerHeight;
@@ -816,7 +732,7 @@
                 textLayers.forEach((t, i) => {
                     const d = document.createElement('div');
                     d.className = `mg-text-thumb ${i === activeTextLayer ? 'active' : ''}`;
-                    d.textContent = t.text.trim().slice(0, 8) || "[empty]";
+                    d.textContent = t.text.trim().slice(0, 8);
                     d.onclick = () => selectTextLayer(i);
                     const del = document.createElement('span');
                     del.className = 'delete-layer'; del.textContent = 'x';
@@ -843,7 +759,7 @@
             function getTextBounds(textLayer) {
                 const t = textLayer;
                 const fontPx = t.size * (W() / 800);
-                ctx.font = `bold ${fontPx}px Tahoma, "MS Sans Serif", sans-serif`;
+                ctx.font = `700 ${fontPx}px 'Poppins', 'Arial Black', sans-serif`;
                 const lines = t.text.split('\n');
                 let maxWidth = 0;
                 lines.forEach(line => { if (ctx.measureText(line).width > maxWidth) maxWidth = ctx.measureText(line).width; });
@@ -854,13 +770,7 @@
 
             function draw() {
                 ctx.clearRect(0, 0, W(), H());
-                if (img) {
-                    ctx.drawImage(img, 0, 0, W(), H());
-                } else {
-                    const beigeColor = getComputedStyle(document.documentElement).getPropertyValue('--win-beige').trim();
-                    ctx.fillStyle = beigeColor || '#d4d0c8';
-                    ctx.fillRect(0, 0, W(), H());
-                }
+                if (img) ctx.drawImage(img, 0, 0, W(), H());
                 layers.forEach(l => {
                     const scale = l.size / 100, w = l.img.width * scale, h = l.img.height * scale;
                     const x = W() * (l.x / 100), y = H() * (l.y / 100);
@@ -872,9 +782,9 @@
                 textLayers.forEach(t => {
                     if (!t.text.trim()) return;
                     const fontPx = t.size * (W() / 800);
-                    ctx.font = `bold ${fontPx}px Tahoma, "MS Sans Serif", sans-serif`;
+                    ctx.font = `700 ${fontPx}px 'Poppins', 'Arial Black', sans-serif`;
                     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.lineWidth = fontPx * 0.15;
+                    ctx.lineWidth = fontPx * 0.12;
                     ctx.fillStyle = t.color === 'white' ? '#ffffff' : '#000000';
                     ctx.strokeStyle = t.color === 'white' ? '#000000' : '#ffffff';
                     const lines = t.text.split('\n'), lineHeight = fontPx * 1.1;
@@ -885,15 +795,13 @@
                         ctx.fillText(line, W() * (t.x / 100), y);
                     });
                 });
-                
-                const selectionColor = getComputedStyle(document.documentElement).getPropertyValue('--win-accent').trim();
                 if (activeLayer !== null) {
                     const l = layers[activeLayer], scale = l.size / 100, w = l.img.width * scale, h = l.img.height * scale;
                     const x = W() * (l.x / 100), y = H() * (l.y / 100);
                     ctx.save();
                     ctx.translate(x, y); ctx.rotate((l.rot * Math.PI) / 180);
-                    ctx.strokeStyle = selectionColor; ctx.lineWidth = 2; ctx.setLineDash([4, 2]); ctx.strokeRect(-w/2, -h/2, w, h); ctx.setLineDash([]);
-                    ctx.fillStyle = selectionColor;
+                    ctx.strokeStyle = '#1DB954'; ctx.lineWidth = 2; ctx.strokeRect(-w/2, -h/2, w, h);
+                    ctx.fillStyle = '#1DB954';
                     const ho = HANDLE_SIZE / 2;
                     ctx.fillRect(-w/2-ho, -h/2-ho, HANDLE_SIZE, HANDLE_SIZE);
                     ctx.fillRect(w/2-ho, -h/2-ho, HANDLE_SIZE, HANDLE_SIZE);
@@ -903,9 +811,9 @@
                 }
                 if (activeTextLayer !== null) {
                     const bounds = getTextBounds(textLayers[activeTextLayer]);
-                    ctx.strokeStyle = selectionColor; ctx.lineWidth = 2; ctx.setLineDash([4, 2]);
-                    ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height); ctx.setLineDash([]);
-                    ctx.fillStyle = selectionColor;
+                    ctx.strokeStyle = '#1DB954'; ctx.lineWidth = 2;
+                    ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                    ctx.fillStyle = '#1DB954';
                     const ho = HANDLE_SIZE / 2;
                     ctx.fillRect(bounds.x-ho, bounds.y-ho, HANDLE_SIZE, HANDLE_SIZE);
                     ctx.fillRect(bounds.x+bounds.width-ho, bounds.y-ho, HANDLE_SIZE, HANDLE_SIZE);
@@ -1053,7 +961,6 @@
                     e.preventDefault(); if (!img && ev === 'drop') handleFile(e.dataTransfer.files[0]);
                 }));
                 
-                // *** FIX: This selector now correctly targets ALL template buttons ***
                 document.querySelectorAll('.mg-template').forEach(t => t.addEventListener('click', handleTemplateClick));
 
                 moreTemplatesBtn.addEventListener('click', openTemplateOverlay);
@@ -1084,7 +991,7 @@
                 document.getElementById('mg-rotate-icon').addEventListener('click', () => { if (activeLayer !== null) { layers[activeLayer].rot = (layers[activeLayer].rot + 90) % 360; draw(); }});
                 document.getElementById('mg-flip-icon').addEventListener('click', () => { if (activeLayer !== null) { layers[activeLayer].flip = !layers[activeLayer].flip; draw(); }});
                 txtArea.addEventListener('input', e => {
-                    if (img && activeTextLayer === null && textLayers.length === 0) addTextLayer(true);
+                    if (img && activeTextLayer === null) addTextLayer(true);
                     if (activeTextLayer !== null) {
                         textLayers[activeTextLayer].text = e.target.value; 
                         refreshTextThumbs(); draw();
@@ -1094,17 +1001,17 @@
                 txtPosXEl.addEventListener('input', e => { if (activeTextLayer !== null) { textLayers[activeTextLayer].x = +e.target.value; updateTextControls(); draw(); }});
                 txtPosYEl.addEventListener('input', e => { if (activeTextLayer !== null) { textLayers[activeTextLayer].y = +e.target.value; updateTextControls(); draw(); }});
                 textColorToggle.addEventListener('click', () => { if(activeTextLayer !== null) { const t = textLayers[activeTextLayer]; t.color = t.color === 'white' ? 'black' : 'white'; draw(); }});
-                document.getElementById('mg-reset').addEventListener('click', () => { if (confirm('Are you sure you want to start over?')) resetApp(); });
+                document.getElementById('mg-reset').addEventListener('click', () => { if (confirm('Are you sure?')) resetApp(); });
                 document.getElementById('mg-download').addEventListener('click', () => {
-                    if (!img) return toast('Please select an image first.');
+                    if (!img) return toast('Upload an image first');
                     deselectAll();
                     const link = document.createElement('a');
-                    link.download = `beige-meme-98.png`;
+                    link.download = `adhd-meme.png`;
                     link.href = canvas.toDataURL('image/png', 0.95);
                     link.click();
                 });
                 document.getElementById('mg-share').addEventListener('click', () => {
-                    if (!img) return toast('Please select an image first.');
+                    if (!img) return toast('Upload an image first');
                     const memeLink = '[replace this with the image from your downloads, you wonderful, hyper-active degen]';
                     const tweet = `Got distracted & made this!\n\nCheck out: ${memeLink} \n\nhttps://adhdegens.fun/ $ADHD`;
                     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
