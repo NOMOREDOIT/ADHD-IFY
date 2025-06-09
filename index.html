@@ -201,7 +201,6 @@
             pointer-events: none;
         }
         
-        /* --- NEW: Specific styling for SVG icons in buttons --- */
         .mg-template-add svg,
         .mg-template-more svg {
             width: 36px;
@@ -226,7 +225,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem; /* Larger '+' sign */
+            font-size: 1.5rem; 
             color: var(--light);
         }
         .mg-text-layer-add:hover {
@@ -501,13 +500,11 @@
                             <div class="mg-template disabled" data-template="2.png"><img src="./2.png" alt="Template 2"></div>
                             <div class="mg-template disabled" data-template="3.png"><img src="./3.png" alt="Template 3"></div>
                             <div class="mg-template disabled" data-template="4.png"><img src="./4.png" alt="Template 4"></div>
-                            <!-- MODIFIED: "More" button with a clear grid icon -->
                             <div class="mg-template-more disabled" id="mg-template-more" title="More templates">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M10 3H4C3.44772 3 3 3.44772 3 4V10C3 10.5523 3.44772 11 4 11H10C10.5523 11 11 10.5523 11 10V4C11 3.44772 10.5523 3 10 3ZM8.5 8.5H5.5V5.5H8.5V8.5Z M10 13H4C3.44772 13 3 13.4477 3 14V20C3 20.5523 3.44772 21 4 21H10C10.5523 21 11 20.5523 11 20V14C11 13.4477 10.5523 13 10 13ZM8.5 18.5H5.5V15.5H8.5V18.5Z M20 3H14C13.4477 3 13 3.44772 13 4V10C13 10.5523 13.4477 11 14 11H20C20.5523 11 21 10.5523 21 10V4C21 3.44772 20.5523 3 20 3ZM18.5 8.5H15.5V5.5H18.5V8.5Z M20 13H14C13.4477 13 13 13.4477 13 14V20C13 20.5523 13.4477 21 14 21H20C20.5523 21 21 20.5523 21 20V14C21 13.4477 20.5523 13 20 13ZM18.5 18.5H15.5V15.5H18.5V18.5Z"></path>
                                 </svg>
                             </div>
-                            <!-- MODIFIED: "Upload" button with a clear upload icon -->
                             <label class="mg-template-add disabled" id="mg-template-add" title="Add Custom PNG">
                                 <input type="file" id="mg-template-file" accept="image/png"/>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -522,6 +519,7 @@
                         <div class="mg-slider"><span class="mg-slider-label">X</span><input type="range" id="mg-pos-x" min="0" max="100" value="50" disabled/><span id="mg-pos-x-val">50</span></div>
                         <div class="mg-slider"><span class="mg-slider-label">Y</span><input type="range" id="mg-pos-y" min="0" max="100" value="50" style="transform: scaleY(-1);" disabled/><span id="mg-pos-y-val">50</span></div>
                         <div class="mg-slider"><span class="mg-slider-label">Size</span><input type="range" id="mg-size" min="10" max="200" value="100" disabled/><span id="mg-size-val">100</span></div>
+                        <div class="mg-slider"><span class="mg-slider-label">Crop Y</span><input type="range" id="mg-crop-y" min="0" max="99" value="0" disabled/><span id="mg-crop-y-val">0</span></div>
                         <div class="mg-row">
                             <button class="mg-icon-btn" id="mg-rotate-icon" disabled title="Rotate 90°">↻</button>
                             <button class="mg-icon-btn" id="mg-flip-icon" disabled title="Flip Horizontally">⇆</button>
@@ -657,6 +655,7 @@
                 document.getElementById('mg-pos-x').disabled = disabled;
                 document.getElementById('mg-pos-y').disabled = disabled;
                 document.getElementById('mg-size').disabled = disabled;
+                document.getElementById('mg-crop-y').disabled = disabled;
                 document.getElementById('mg-rotate-icon').disabled = disabled;
                 document.getElementById('mg-flip-icon').disabled = disabled;
                 if (!disabled) {
@@ -667,6 +666,8 @@
                     document.getElementById('mg-pos-y-val').textContent = Math.round(l.y);
                     document.getElementById('mg-size').value = l.size;
                     document.getElementById('mg-size-val').textContent = Math.round(l.size);
+                    document.getElementById('mg-crop-y').value = l.cropY;
+                    document.getElementById('mg-crop-y-val').textContent = Math.round(l.cropY);
                 }
             }
 
@@ -771,14 +772,30 @@
             function draw() {
                 ctx.clearRect(0, 0, W(), H());
                 if (img) ctx.drawImage(img, 0, 0, W(), H());
+                
                 layers.forEach(l => {
-                    const scale = l.size / 100, w = l.img.width * scale, h = l.img.height * scale;
-                    const x = W() * (l.x / 100), y = H() * (l.y / 100);
+                    const scale = l.size / 100;
+                    const cropPercent = (l.cropY || 0) / 100;
+
+                    const sWidth = l.img.naturalWidth;
+                    const sHeight = l.img.naturalHeight * (1 - cropPercent);
+                    if (sHeight <= 0) return;
+
+                    const dWidth = sWidth * scale;
+                    const dHeight = sHeight * scale;
+                    const x = W() * (l.x / 100);
+                    const y = H() * (l.y / 100);
+                    
+                    const yOffset = (l.img.naturalHeight * cropPercent * scale) / 2;
+
                     ctx.save();
-                    ctx.translate(x, y); ctx.rotate((l.rot * Math.PI) / 180); ctx.scale(l.flip ? -1 : 1, 1);
-                    ctx.drawImage(l.img, -w / 2, -h / 2, w, h);
+                    ctx.translate(x, y - yOffset);
+                    ctx.rotate((l.rot * Math.PI) / 180); 
+                    ctx.scale(l.flip ? -1 : 1, 1);
+                    ctx.drawImage(l.img, 0, 0, sWidth, sHeight, -dWidth / 2, -dHeight / 2, dWidth, dHeight);
                     ctx.restore();
                 });
+
                 textLayers.forEach(t => {
                     if (!t.text.trim()) return;
                     const fontPx = t.size * (W() / 800);
@@ -795,11 +812,20 @@
                         ctx.fillText(line, W() * (t.x / 100), y);
                     });
                 });
+
                 if (activeLayer !== null) {
-                    const l = layers[activeLayer], scale = l.size / 100, w = l.img.width * scale, h = l.img.height * scale;
-                    const x = W() * (l.x / 100), y = H() * (l.y / 100);
+                    const l = layers[activeLayer];
+                    const scale = l.size / 100;
+                    const cropPercent = (l.cropY || 0) / 100;
+                    const w = l.img.naturalWidth * scale;
+                    const h = l.img.naturalHeight * (1 - cropPercent) * scale;
+                    const x = W() * (l.x / 100);
+                    const y = H() * (l.y / 100);
+                    const yOffset = (l.img.naturalHeight * cropPercent * scale) / 2;
+                    
                     ctx.save();
-                    ctx.translate(x, y); ctx.rotate((l.rot * Math.PI) / 180);
+                    ctx.translate(x, y - yOffset);
+                    ctx.rotate((l.rot * Math.PI) / 180);
                     ctx.strokeStyle = '#1DB954'; ctx.lineWidth = 2; ctx.strokeRect(-w/2, -h/2, w, h);
                     ctx.fillStyle = '#1DB954';
                     const ho = HANDLE_SIZE / 2;
@@ -809,6 +835,7 @@
                     ctx.fillRect(w/2-ho, h/2-ho, HANDLE_SIZE, HANDLE_SIZE);
                     ctx.restore();
                 }
+                
                 if (activeTextLayer !== null) {
                     const bounds = getTextBounds(textLayers[activeTextLayer]);
                     ctx.strokeStyle = '#1DB954'; ctx.lineWidth = 2;
@@ -840,7 +867,7 @@
             
             function addImageLayer(image) {
                 if (layers.length >= 10) return toast('Maximum 10 layers allowed');
-                layers.push({ img: image, x: 50, y: 50, size: 100, rot: 0, flip: false });
+                layers.push({ img: image, x: 50, y: 50, size: 100, rot: 0, flip: false, cropY: 0 });
                 selectLayer(layers.length - 1);
             }
 
@@ -852,14 +879,16 @@
             }
 
             function getHandleAtPoint(point, bounds, rotation = 0) {
-                const cx = bounds.cx ?? bounds.x + bounds.width/2, cy = bounds.cy ?? bounds.y + bounds.height/2;
+                const cx = bounds.cx;
+                const cy = bounds.cy;
                 const handleRadius = HANDLE_SIZE;
                 const handles = {
                     tl: {x: -bounds.width/2, y: -bounds.height/2}, tr: {x: bounds.width/2, y: -bounds.height/2},
                     bl: {x: -bounds.width/2, y: bounds.height/2}, br: {x: bounds.width/2, y: bounds.height/2}
                 };
                 for (const name in handles) {
-                    const handle = handles[name], angle = rotation * Math.PI / 180;
+                    const handle = handles[name];
+                    const angle = rotation * Math.PI / 180;
                     const rX = handle.x * Math.cos(angle) - handle.y * Math.sin(angle);
                     const rY = handle.x * Math.sin(angle) + handle.y * Math.cos(angle);
                     if (Math.hypot(point.x - (cx + rX), point.y - (cy + rY)) < handleRadius) return name;
@@ -874,7 +903,15 @@
                 interaction.startX = point.x; interaction.startY = point.y;
                 if (activeLayer !== null) {
                     const l = layers[activeLayer];
-                    const bounds = { width: l.img.width * (l.size/100), height: l.img.height * (l.size/100), cx: W() * (l.x/100), cy: H() * (l.y/100) };
+                    const scale = l.size / 100;
+                    const cropPercent = (l.cropY || 0) / 100;
+                    const yOffset = (l.img.naturalHeight * cropPercent * scale) / 2;
+                    const bounds = { 
+                        width: l.img.naturalWidth * scale, 
+                        height: l.img.naturalHeight * (1 - cropPercent) * scale, 
+                        cx: W() * (l.x / 100), 
+                        cy: H() * (l.y / 100) - yOffset
+                    };
                     const handle = getHandleAtPoint(point, bounds, l.rot);
                     if (handle) {
                         interaction = { active: true, type: 'resizeLayer', index: activeLayer, handle, startX: point.x, startY: point.y, initialState: JSON.parse(JSON.stringify(l)) };
@@ -884,18 +921,28 @@
                 if (activeTextLayer !== null) {
                     const t = textLayers[activeTextLayer];
                     const bounds = getTextBounds(t);
-                    const handle = getHandleAtPoint(point, bounds);
-                    if (handle) {
-                        interaction = { active: true, type: 'resizeText', index: activeTextLayer, handle, startX: point.x, startY: point.y, initialState: JSON.parse(JSON.stringify(t)) };
-                        return;
+                    if (point.x > bounds.x && point.x < bounds.x + bounds.width && point.y > bounds.y && point.y < bounds.y + bounds.height) {
+                         selectTextLayer(activeTextLayer);
+                         interaction = { active: true, type: 'dragText', index: activeTextLayer, startX: point.x, startY: point.y, initialState: JSON.parse(JSON.stringify(t)) };
+                         return;
                     }
                 }
                 for (let i = layers.length - 1; i >= 0; i--) {
-                    const l = layers[i], dx = point.x - W()*(l.x/100), dy = point.y - H()*(l.y/100);
+                    const l = layers[i];
+                    const scale = l.size / 100;
+                    const cropPercent = (l.cropY || 0) / 100;
+                    const yOffset = (l.img.naturalHeight * cropPercent * scale) / 2;
+
+                    const dx = point.x - W()*(l.x/100);
+                    const dy = point.y - (H()*(l.y/100) - yOffset);
+
                     const angle = -l.rot * Math.PI / 180;
                     const localX = dx * Math.cos(angle) - dy * Math.sin(angle);
                     const localY = dx * Math.sin(angle) + dy * Math.cos(angle);
-                    const w = l.img.width*(l.size/100), h = l.img.height*(l.size/100);
+                    
+                    const w = l.img.naturalWidth * scale;
+                    const h = l.img.naturalHeight * (1 - cropPercent) * scale;
+                    
                     if (Math.abs(localX) < w/2 && Math.abs(localY) < h/2) {
                         selectLayer(i);
                         interaction = { active: true, type: 'dragLayer', index: i, startX: point.x, startY: point.y, initialState: JSON.parse(JSON.stringify(l)) };
@@ -924,7 +971,12 @@
                     layer.x = iState.x + (dx / W()) * 100;
                     layer.y = iState.y + (dy / H()) * 100;
                 } else if (interaction.type.startsWith('resize')) {
-                    const cx = W() * (iState.x / 100), cy = H() * (iState.y / 100);
+                    const l = layer;
+                    const scale = l.size / 100;
+                    const cropPercent = (l.cropY || 0) / 100;
+                    const yOffset = (l.img.naturalHeight * cropPercent * scale) / 2;
+                    const cx = W() * (iState.x / 100);
+                    const cy = H() * (iState.y / 100) - yOffset;
                     const initialDist = Math.hypot(interaction.startX - cx, interaction.startY - cy);
                     const currentDist = Math.hypot(point.x - cx, point.y - cy);
                     if (initialDist > 1) layer.size = iState.size * (currentDist / initialDist);
@@ -980,14 +1032,17 @@
                     reader.readAsDataURL(file);
                 });
                 document.getElementById('mg-text-layer-add').onclick = () => addTextLayer(false);
-                ['mg-pos-x','mg-pos-y','mg-size'].forEach(id => document.getElementById(id).addEventListener('input', (e) => {
+                
+                ['mg-pos-x','mg-pos-y','mg-size', 'mg-crop-y'].forEach(id => document.getElementById(id).addEventListener('input', (e) => {
                     if(activeLayer === null) return;
                     const l = layers[activeLayer];
                     if(id === 'mg-pos-x') l.x = +e.target.value;
                     if(id === 'mg-pos-y') l.y = 100 - e.target.value;
                     if(id === 'mg-size') l.size = +e.target.value;
+                    if(id === 'mg-crop-y') l.cropY = +e.target.value;
                     updateImageControls(); draw();
                 }));
+
                 document.getElementById('mg-rotate-icon').addEventListener('click', () => { if (activeLayer !== null) { layers[activeLayer].rot = (layers[activeLayer].rot + 90) % 360; draw(); }});
                 document.getElementById('mg-flip-icon').addEventListener('click', () => { if (activeLayer !== null) { layers[activeLayer].flip = !layers[activeLayer].flip; draw(); }});
                 txtArea.addEventListener('input', e => {
